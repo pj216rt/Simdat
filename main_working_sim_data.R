@@ -128,10 +128,6 @@ stan_fit <- stan(file = "test2c.stan", data = stan_dat, iter = 2000, chains = 1)
 gamma_summary <- summary(stan_fit, pars = c("beta"), probs = c(0.1, 0.9))$summary
 print(gamma_summary)
 
-me1 <- lmer(Y ~ (X1 + X2 + X3 + X4)*time + (1+time||id), data = mydat)
-summary(me1)
-
-
 #LASSO
 mod4 <- stan_model("lasso_test.stan")
 stan_fit1 <- stan(file = "lasso_test.stan", data = stan_dat, iter = 2000, chains = 1)
@@ -165,4 +161,18 @@ marginal_effects(sim2_brms)
 
 loo(sim_brms,sim2_brms, compare = TRUE)
 
-library(usethis)
+#Scaled data
+scaled.dat <- mydat %>% mutate_at(c("X1", "X2", "X3", "X4", "Y"), ~(scale(.) %>% as.vector))
+lev2_var <- extract_lev2(scaled.dat, id, 1, cols_to_drop = c("id", "time", "Y"))
+stan_dat <- list(N_obs = nrow(scaled.dat),
+                 N_pts = max(as.numeric(scaled.dat$id)),
+                 L = 2, K = ncol(lev2_var)+1,
+                 pid = scaled.dat$id, x = cbind(1, scaled.dat$time),
+                 x2 = cbind(1, lev2_var), y = scaled.dat$Y)
+
+stan_fit <- stan(file = "test2b.stan", data = stan_dat, iter = 6000, chains = 1)
+gamma_summary <- summary(stan_fit, pars = c("gamma"), probs = c(0.1, 0.9))$summary
+print(gamma_summary)
+
+me1 <- lmer(Y ~ (X1 + X2 + X3 + X4)*time + (1+time||id), data = scaled.dat)
+summary(me1)
