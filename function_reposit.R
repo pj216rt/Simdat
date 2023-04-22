@@ -208,3 +208,30 @@ SNR_stan <- function(stan_output){
   temp["SNR"] = temp[1]/temp[3]
   return(temp)
 }
+
+#function to plot SNR for STAN
+SNR_loop <- function(datasets, stan_file = "test2c.stan"){
+  check <- list()
+  for(i in seq_along(datasets)){
+    lev2_vars <- extract_lev2(datasets[[i]], id, 1, cols_to_drop = c("id", "time", "Y"))
+    
+    stan_dat <- list(
+      N_obs = nrow(datasets[[i]]),
+      N_pts = max(as.numeric(datasets[[i]]$id)),
+      L = 2, K = ncol(lev2_vars)+1,
+      pid = datasets[[i]]$id,
+      x = cbind(1, datasets[[i]]$time), 
+      x2 = cbind(1, lev2_vars),
+      y = datasets[[i]]$Y
+    )
+    stan_fit <- stan(file = "test2b.stan", data = stan_dat, iter = 2000, chains = 1)
+    gamma_summary <- summary(stan_fit, pars = c("gamma"), probs = c(0.1, 0.9))$summary
+    temp <- SNR_stan(gamma_summary)
+    temp <- temp[, c("SNR")]
+    print(temp)
+    check[[i]] <- temp
+  }
+  check <- t(data.frame(check))
+  row.names(check) <- seq.int(nrow(check))
+  return(check)
+}
