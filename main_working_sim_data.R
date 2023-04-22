@@ -138,17 +138,6 @@ gamma_summary <- summary(stan_fit1, pars = c("gamma"), probs = c(0.1, 0.9))$summ
 print(gamma_summary)
 coef_var_stan(gamma_summary)
 
-p3 <- stan.consistency()
-
-
-#Scaled data
-scaled.dat <- mydat %>% mutate_at(c("X3", "X4"), ~(scale(.) %>% as.vector))
-lev2_var <- extract_lev2(scaled.dat, id, 1, cols_to_drop = c("id", "time", "Y"))
-stan_dat <- list(N_obs = nrow(scaled.dat),
-                 N_pts = max(as.numeric(scaled.dat$id)),
-                 L = 2, K = ncol(lev2_var)+1,
-                 pid = scaled.dat$id, x = cbind(1, scaled.dat$time),
-                 x2 = cbind(1, lev2_var), y = scaled.dat$Y)
 
 stan_fit <- stan(file = "test2b.stan", data = stan_dat, iter = 6000, chains = 1)
 gamma_summary <- summary(stan_fit, pars = c("gamma"), probs = c(0.1, 0.9))$summary
