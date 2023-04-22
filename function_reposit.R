@@ -205,4 +205,6 @@ coef_var_stan <- function(stan_ouput){
 #Compute SNR ratio
 SNR_stan <- function(stan_output){
   temp <- data.frame(stan_output)
+  temp["SNR"] = temp[1]/temp[3]
+  return(temp)
 }

@@ -1,12 +1,15 @@
 source("function_reposit.R")
 set.seed(1234)
 
-#Scaled data
-for (i in bunches){
+#Simulate data, unless overridden, defaults from function file are used
+dat <- gen_lots_data(nreps = 4,coef2Continuous = list(c(int2 = 1.0, slope2 = -3.0),
+                                            c(int2 = 0.0, slope2 = 3.0)))
+
+
+#We need to scale the data now
+for(i in dat){
   i <- i %>% mutate_at(c("X1", "X2", "X3", "X4", "Y"), ~(scale(.) %>% as.vector))
 }
-
-print(head(bunches))
 
 scaled.dat <- mydat %>% mutate_at(c("X1", "X2", "X3", "X4", "Y"), ~(scale(.) %>% as.vector))
 lev2_var <- extract_lev2(scaled.dat, id, 1, cols_to_drop = c("id", "time", "Y"))

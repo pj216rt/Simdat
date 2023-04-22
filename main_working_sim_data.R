@@ -107,11 +107,6 @@ p1 <- ggplot(d2, aes(index,value, col=variable)) + stat_smooth(se = F) +
   xlab("Run Number") + ylab("Coefficient Value")
 p1
 
-library(glmm)
-
-sal <- glmm(Y ~ (X1+X2+X3)*time, random = list(~ 0 + id), data = mydat,
-            family.glmm = bernoulli.glmm, m = 10^4, debug = TRUE)
-
 
 
 mod3 <- stan_model("test2c.stan")
@@ -126,6 +121,7 @@ stan_fit <- stan(file = "test2c.stan", data = stan_dat, iter = 3000, chains = 1)
 gamma_summary <- summary(stan_fit, pars = c("beta"), probs = c(0.1, 0.9))$summary
 print(gamma_summary)
 
+
 #LASSO
 mod4 <- stan_model("lasso_test.stan")
 stan_fit1 <- stan(file = "lasso_test.stan", data = stan_dat, iter = 2000, chains = 1)
@@ -133,31 +129,6 @@ gamma_summary <- summary(stan_fit1, pars = c("gamma"), probs = c(0.1, 0.9))$summ
 print(gamma_summary)
 
 
-
-#Trying brms
-library(brms)
-
-sim_brms <- brm(Y~time, data = mydat, chains = 3,
-                iter = 3000, warmup = 1000)
-summary(sim_brms)
-plot(sim_brms)
-pp_check(sim_brms)
-
-#Adding random effects
-bprior <- c(prior_string("horseshoe(1)", class = "b"))
-set_prior(lasso(df = 1, scale = 10))
-sim2_brms <- brm(Y~(X1 + X2 + X3 + X4)*time + (1+time|id), prior = set_prior(lasso(df = 1, scale = 10)),
-                 data = mydat, chains = 3,
-                 iter = 3000, warmup = 1000)
-summary(sim2_brms)
-plot(sim2_brms)
-pp_check(sim2_brms)
-sim2_brms$model
-
-
-marginal_effects(sim2_brms)
-
-loo(sim_brms,sim2_brms, compare = TRUE)
 
 test <- stan_model("lasso_test.stan")
 test1 <- stan_model("ridge_test.stan")
@@ -171,7 +142,7 @@ p3 <- stan.consistency()
 
 
 #Scaled data
-scaled.dat <- mydat %>% mutate_at(c("X1", "X2", "X3", "X4", "Y"), ~(scale(.) %>% as.vector))
+scaled.dat <- mydat %>% mutate_at(c("X3", "X4"), ~(scale(.) %>% as.vector))
 lev2_var <- extract_lev2(scaled.dat, id, 1, cols_to_drop = c("id", "time", "Y"))
 stan_dat <- list(N_obs = nrow(scaled.dat),
                  N_pts = max(as.numeric(scaled.dat$id)),
@@ -183,5 +154,7 @@ stan_fit <- stan(file = "test2b.stan", data = stan_dat, iter = 6000, chains = 1)
 gamma_summary <- summary(stan_fit, pars = c("gamma"), probs = c(0.1, 0.9))$summary
 print(gamma_summary)
 
-me1 <- lmer(Y ~ (X1 + X2 + X3 + X4)*time + (1+time||id), data = scaled.dat)
+SNR_stan(gamma_summary)
+
+me1 <- lmer(Y ~ (X1 + X2 + X3 + X4)*time + (1+time|id), data = scaled.dat)
 summary(me1)
