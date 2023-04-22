@@ -36,6 +36,3 @@ p2 <- ggplot(d2, aes(index,value, col=variable)) + stat_smooth(se = F) +
 p2
 #Plot comparing the two methods
 grid.arrange(p1,p2)
-
-
-ot <- SNR_loop(dat)
