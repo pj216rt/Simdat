@@ -153,6 +153,7 @@ consistency_check <- function(datasets){
   return(check)
 }
 
+#Loop over STAN data to check for consistency
 stan.consistency <- function(datasets, stan_file = "test2b.stan"){
   check <- list()
   for(i in seq_along(datasets)){
@@ -178,6 +179,8 @@ stan.consistency <- function(datasets, stan_file = "test2b.stan"){
   return(check)
 }
 
+
+#Loop over SPLMM function to check for consistency
 splm_loop <- function(datasets){
   check <- list()
   for(i in seq_along(datasets)){
@@ -190,4 +193,16 @@ splm_loop <- function(datasets){
   check <- t(data.frame(check))
   row.names(check) <- seq.int(nrow(check))
   return(check)
+}
+
+#Compute Coefficient of Variation for STAN results
+coef_var_stan <- function(stan_ouput){
+  temp <- data.frame(stan_ouput)
+  temp["COEF_VAR"] = temp[3]/temp[1]
+  return(temp)
+}
+
+#Compute SNR ratio
+SNR_stan <- function(stan_output){
+  temp <- data.frame(stan_output)
 }

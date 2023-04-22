@@ -1,13 +1,12 @@
 source("function_reposit.R")
 set.seed(1234)
 
-bunches[1]
-
 #Scaled data
 for (i in bunches){
-  temp <- i
-  print(i)
+  i <- i %>% mutate_at(c("X1", "X2", "X3", "X4", "Y"), ~(scale(.) %>% as.vector))
 }
+
+print(head(bunches))
 
 scaled.dat <- mydat %>% mutate_at(c("X1", "X2", "X3", "X4", "Y"), ~(scale(.) %>% as.vector))
 lev2_var <- extract_lev2(scaled.dat, id, 1, cols_to_drop = c("id", "time", "Y"))

@@ -5,7 +5,7 @@ library(gridExtra)
 source("function_reposit.R")
 set.seed(1234)
 
-mydat <- genData(nSubjs = 400, sdErr = 10, 
+mydat <- genData(nSubjs = 200, sdErr = 10, 
                           # intercept and slope fixed effects
                           coef1 = c(4, 3),
                           # types of level 2 covariates
@@ -35,11 +35,9 @@ summary(me1)
 m <- vcov(me1)
 vcov(me1) |> cov2cor()
 
-#SNR of STAN code?
-
 
 #Generate lots of data
-bunches <- gen_lots_data(nreps = 500, nSubjs = 400, sdErr = 10, 
+bunches <- gen_lots_data(nreps = 100, nSubjs = 200, sdErr = 10, 
                          # intercept and slope fixed effects
                          coef1 = c(4, 3),
                          # types of level 2 covariates
@@ -124,7 +122,7 @@ stan_dat <- list(N_obs = nrow(mydat),
                  pid = mydat$id, x = cbind(1, mydat$time),
                  x2 = lev2_var, y = mydat$Y)
 
-stan_fit <- stan(file = "test2c.stan", data = stan_dat, iter = 2000, chains = 1)
+stan_fit <- stan(file = "test2c.stan", data = stan_dat, iter = 3000, chains = 1)
 gamma_summary <- summary(stan_fit, pars = c("beta"), probs = c(0.1, 0.9))$summary
 print(gamma_summary)
 
@@ -160,6 +158,17 @@ sim2_brms$model
 marginal_effects(sim2_brms)
 
 loo(sim_brms,sim2_brms, compare = TRUE)
+
+test <- stan_model("lasso_test.stan")
+test1 <- stan_model("ridge_test.stan")
+
+stan_fit1 <- stan(file = "test2c.stan", data = stan_dat, iter = 3000, chains = 1)
+gamma_summary <- summary(stan_fit1, pars = c("gamma"), probs = c(0.1, 0.9))$summary
+print(gamma_summary)
+coef_var_stan(gamma_summary)
+
+p3 <- stan.consistency()
+
 
 #Scaled data
 scaled.dat <- mydat %>% mutate_at(c("X1", "X2", "X3", "X4", "Y"), ~(scale(.) %>% as.vector))
