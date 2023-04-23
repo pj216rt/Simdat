@@ -23,10 +23,9 @@ model {
   
 }
 
-
 generated quantities {
   //predictions
-  vector[N_obs_test] y_new;
-  for(n in 1:N_obs_test){
-  }
+  matrix [N_pts_test, L] beta;
+  
+  matrix[N_samples, N] y_test;
 }
