@@ -21,7 +21,7 @@ parameters {
   matrix[K,L] gamma; //level 2 coefficients
   vector[L] beta;
   corr_matrix[L] Omega; // correlation matrix
-  real<lower=0> sigma; // population sigma
+  
   
   real<lower=0> sigma2;
   
@@ -29,13 +29,16 @@ parameters {
 }
 
 transformed parameters {
+  real<lower=0> sigma; // population sigma
   matrix [N_pts, L] lev2;
   lev2 = x2*gamma;
+  
+  sigma = sqrt(sigma2);
 }
 
 model {
   vector[N_obs] mu;
-  to_vector(gamma) ~ double_exponential(0, sigma2/lambda);
+  to_vector(gamma) ~ double_exponential(0, sigma/lambda);
 	lambda ~ cauchy(0, 1);
   Omega ~ lkj_corr(1);
   tau ~ inv_gamma(1,7);

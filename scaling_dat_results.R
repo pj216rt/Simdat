@@ -54,3 +54,22 @@ p3
 
 #Comparing Local Student T model
 mod4 <- stan_model("studentt_test.stan")
+test4 <- data.frame(stan.consistency(dat, stan_file = "studentt_test.stan"))
+test4$index <- 1:nrow(test4)
+d4 <- melt(test4, id.vars="index")
+#Plot values of fixed effects for the nrep repetitions
+p4 <- ggplot(d4, aes(index,value, col=variable)) + stat_smooth(se = F) +
+  ggtitle("Coefficient Value over time, STAN, Student") +
+  xlab("Run Number") + ylab("Coefficient Value")
+p4
+
+#LASSO model
+mod5 <- stan_model("lasso_test.stan")
+test5 <- data.frame(stan.consistency(dat, stan_file = "lasso_test.stan"))
+test5$index <- 1:nrow(test5)
+d5 <- melt(test5, id.vars="index")
+#Plot values of fixed effects for the nrep repetitions
+p5 <- ggplot(d5, aes(index,value, col=variable)) + stat_smooth(se = F) +
+  ggtitle("Coefficient Value over time, STAN, LASSO") +
+  xlab("Run Number") + ylab("Coefficient Value")
+p5
