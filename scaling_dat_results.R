@@ -36,3 +36,21 @@ p2 <- ggplot(d2, aes(index,value, col=variable)) + stat_smooth(se = F) +
 p2
 #Plot comparing the two methods
 grid.arrange(p1,p2)
+
+
+
+
+#Comparing ridge model
+mod3 <- stan_model("ridge_test.stan")
+test3 <- data.frame(stan.consistency(dat, stan_file = "ridge_test.stan"))
+test3$index <- 1:nrow(test3)
+d3 <- melt(test3, id.vars="index")
+#Plot values of fixed effects for the nrep repetitions
+p3 <- ggplot(d3, aes(index,value, col=variable)) + stat_smooth(se = F) +
+  ggtitle("Coefficient Value over time, STAN, RIDGE") +
+  xlab("Run Number") + ylab("Coefficient Value")
+p3
+
+
+#Comparing Local Student T model
+mod4 <- stan_model("studentt_test.stan")

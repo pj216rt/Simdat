@@ -16,28 +16,27 @@ data {
 }
 
 parameters {
-  //vector[L] beta_p[N_pts]; // ind participant int, slope by individual
   matrix[L, N_pts] beta_p;
   vector<lower=0>[L] tau;      // prior scale
   matrix[K,L] gamma; //level 2 coefficients
-  //vector[L] beta;
   corr_matrix[L] Omega; // correlation matrix
-  real<lower=0> sigma2; // population sigma
+  real<lower=0> sigma; // population sigma
   
-  real<lower=0> prec;
   real<lower=0> lambda; //penalty parameter
 }
 
 transformed parameters {
-  real<lower=0> sigma; //error sd
-  
+  real<lower=0> tau2; //prior variance
   matrix [N_pts, L] beta;
   beta = x2*gamma;
+  
+  tau2 = sigma^2/lambda;
 }
 
 model {
   vector[N_obs] mu;
-  to_vector(gamma) ~ normal(0,100);
+  to_vector(gamma) ~ student_t(1, 0, sqrt(tau2));
+  lambda ~ cauchy(0, 1);
   
   Omega ~ lkj_corr(1);
   tau ~ inv_gamma(1,7);
@@ -56,3 +55,4 @@ model {
   
   y ~ normal(mu, sigma);
 }
+
