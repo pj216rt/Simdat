@@ -237,3 +237,5 @@ SNR_loop <- function(datasets, stan_file = "test2c.stan"){
   row.names(check) <- seq.int(nrow(check))
   return(check)
 }
+
+#Prediction accuracy

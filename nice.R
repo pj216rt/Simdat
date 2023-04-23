@@ -3,7 +3,7 @@ source("function_reposit.R")
 set.seed(1234)
 
 #Simulate data,
-dat <- gen_lots_data(nreps = 31,nSubjs = 100, sdErr = 10, 
+dat <- gen_lots_data(nreps = 1,nSubjs = 100, sdErr = 10, 
                      # intercept and slope fixed effects
                      coef1 = c(4, 3),
                      # types of level 2 covariates
@@ -27,4 +27,9 @@ for(i in dat){
 }
 
 #Split into test and train
-split <- tt_split(dataset = dat, ntrain = 100)
+split <- tt_split(dataset = dat, ntrain = 320)
+
+#Uninformative
+mod <- stan_model("test2b.stan")
+
+mod2 <- stan_model("pred_error_uninform.stan")
