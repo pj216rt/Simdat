@@ -73,3 +73,18 @@ p5 <- ggplot(d5, aes(index,value, col=variable)) + stat_smooth(se = F) +
   ggtitle("Coefficient Value over time, STAN, LASSO") +
   xlab("Run Number") + ylab("Coefficient Value")
 p5
+
+
+
+#SNR uninformative
+test6 <- SNR_loop(dat, stan_file = "test2b.stan")
+
+play <- test6
+play <- data.frame(test6)
+play$index <- 1:nrow(play)
+d6 <- melt(play, id.vars="index")
+#Plot values of fixed effects for the nrep repetitions
+p6 <- ggplot(d6, aes(index,value, col=variable)) + stat_smooth(se = F) +
+  ggtitle("Signal to Noise Ratio, STAN, Uninformative") +
+  xlab("Run Number") + ylab("Coefficient Value")
+p6
