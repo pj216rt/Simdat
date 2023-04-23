@@ -124,13 +124,15 @@ gen_lots_data <- function(nreps = 10,
 }
 
 #Split data into test and train
-tt_split <- function(data, ntrain){
-  train_ind <- sample(seq_len(nrow(data)), size = ntrain)
-  train <- data[train_ind, ]
-  test <- data[-train_ind, ]
-  
-  output <- list(Training = train, Testing = test)
-  return(output)
+tt_split <- function(dataset, ntrain){
+  check <- list()
+  for(i in dataset){
+    train_ind <- sample(seq_len(nrow(i)), size = ntrain)
+    train <- i[train_ind, ]
+    test <- i[-train_ind, ]
+  }
+  check <- list(Training = train, Testing = test)
+  return(check)
 }
 
 extract_lev2 <- function(dat, id, filter_num, 
