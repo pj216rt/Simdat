@@ -3,7 +3,7 @@ source("function_reposit.R")
 set.seed(1234)
 
 #Simulate data,
-dat <- gen_lots_data(nreps = 1,nSubjs = 100, sdErr = 10, 
+dat <- gen_lots_data(nreps = 4,nSubjs = 200, sdErr = 10, 
                      # intercept and slope fixed effects
                      coef1 = c(4, 3),
                      # types of level 2 covariates
@@ -26,11 +26,11 @@ for(i in dat){
   i <- i %>% mutate_at(c("X3", "X4"), ~(scale(.) %>% as.vector))
 }
 
-#convert to data frame
-dat <- data.frame(dat)
+test <- stan_out(dat, stan_file = "test2b.stan")
+test
 
 #Split into test and train
-split <- tt_split(dataset = dat, ntrain = 320)
+split <- tt_split(dataset = dat, ntrain = 400)
 
 #Uninformative
 mod <- stan_model("test2b.stan")

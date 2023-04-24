@@ -238,4 +238,32 @@ SNR_loop <- function(datasets, stan_file = "test2c.stan"){
   return(check)
 }
 
+#STAN output loop
+stan_out <- function(datasets, stan_file = "test2b.stan"){
+  #pre allocate vector
+  check <- array()
+  for(i in seq_along(datasets)){
+    lev2_vars <- extract_lev2(datasets[[i]], id, 1, cols_to_drop = c("id", "time", "Y"))
+    
+    
+    #Create data to feed into sampler
+    stan_dat <- list(
+      N_obs = nrow(datasets[[i]]),
+      N_pts = max(as.numeric(datasets[[i]]$id)),
+      L = 2, K = ncol(lev2_vars)+1,
+      pid = datasets[[i]]$id,
+      x = cbind(1, datasets[[i]]$time), 
+      x2 = cbind(1, lev2_vars),
+      y = datasets[[i]]$Y
+    )
+    
+    #run STAN code
+    stan_fit <- stan(file = "test2b.stan", data = stan_dat, iter = 2000, chains = 1)
+    temp <- as.matrix(stan_fit)
+    print(colnames(temp))
+    check[i] <- append(check, temp)
+  }
+  return(check)
+}
+
 #Prediction accuracy
