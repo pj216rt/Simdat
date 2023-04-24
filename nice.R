@@ -26,6 +26,9 @@ for(i in dat){
   i <- i %>% mutate_at(c("X3", "X4"), ~(scale(.) %>% as.vector))
 }
 
+#convert to data frame
+dat <- data.frame(dat)
+
 #Split into test and train
 split <- tt_split(dataset = dat, ntrain = 320)
 

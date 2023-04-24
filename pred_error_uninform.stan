@@ -13,6 +13,8 @@ data {
   int pid_test[N_obs_test]; // participant id vector.  Vector will identify each participant in dataset
   
   int N_samples;
+  
+  vector[N_samples] gamma;
 }
 
 parameters {
@@ -26,6 +28,21 @@ model {
 generated quantities {
   //predictions
   matrix [N_pts_test, L] beta;
+  beta = x2_test*gamma;
   
-  matrix[N_samples, N] y_test;
+  {
+    matrix[L,L] Sigma_beta;
+    Sigma_beta = quad_form_diag(Omega, tau);
+    for (j in 1:N_pts){
+      beta_p[, j] ~ multi_normal(beta[j], Sigma_beta);
+    }
+  }
+  
+  matrix[N_samples, N_obs_test] y_test;
+  for(n in 1:N_obs_test){
+    for ( i in 1:N_samples){
+      y_test[i,n] = normal_rng(x_test)
+    }
+  }
+  
 }

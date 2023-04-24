@@ -88,3 +88,14 @@ p6 <- ggplot(d6, aes(index,value, col=variable)) + stat_smooth(se = F) +
   ggtitle("Signal to Noise Ratio, STAN, Uninformative") +
   xlab("Run Number") + ylab("Coefficient Value")
 p6
+
+#SNR ridge
+test7 <- SNR_loop(dat, stan_file = "ridge_test.stan")
+test7 <- data.frame(test7)
+test7$index <- 1:nrow(test7)
+d7 <- melt(test7, id.vars="index")
+#Plot values of fixed effects for the nrep repetitions
+p7 <- ggplot(d7, aes(index,value, col=variable)) + stat_smooth(se = F) +
+  ggtitle("SNR values over time, STAN, RIDGE") +
+  xlab("Run Number") + ylab("Coefficient Value")
+p7
