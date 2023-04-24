@@ -26,13 +26,11 @@ for(i in dat){
   i <- i %>% mutate_at(c("X3", "X4"), ~(scale(.) %>% as.vector))
 }
 
-test <- stan_out(dat, stan_file = "test2b.stan")
-test
-
 #Split into test and train
 split <- tt_split(dataset = dat, ntrain = 400)
 
 #Uninformative
 mod <- stan_model("test2b.stan")
 
-mod2 <- stan_model("pred_error_uninform.stan")
+test <- stan_out(dat, stan_file = "test2b.stan")
+test

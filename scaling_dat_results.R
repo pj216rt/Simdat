@@ -74,6 +74,17 @@ p5 <- ggplot(d5, aes(index,value, col=variable)) + stat_smooth(se = F) +
   xlab("Run Number") + ylab("Coefficient Value")
 p5
 
+#Elastic net
+test <- stan_model("elastic_net.stan")
+ela_net <- data.frame(stan.consistency(dat, stan_file = "elastic_net.stan"))
+ela_net$index <- 1:nrow(ela_net)
+d6 <- melt(ela_net, id.vars="index")
+#Plot values of fixed effects for the nrep repetitions
+p6 <- ggplot(d6, aes(index,value, col=variable)) + stat_smooth(se = F) +
+  ggtitle("Coefficient Values, STAN, Elastic Net") +
+  xlab("Run Number") + ylab("Coefficient Value")
+p6
+
 
 
 #SNR uninformative
