@@ -33,5 +33,6 @@ split <- tt_split(datasets = dat)
 
 #Uninformative
 mod <- stan_model("test2b.stan")
+mod <- stan_model("pred_error_uninform.stan")
 
-test <- predfunct(trainsets = split$Training, testsets = split$Testing, stan_file = "test2b.stan")
+#test <- predfunct(trainsets = split$Training, testsets = split$Testing, stan_file = "test2b.stan")

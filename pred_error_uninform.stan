@@ -17,9 +17,7 @@ data {
   
   //testing
   int<lower=0> N_obs_test; // number of observations
-  int<lower=0> N_pts_test; // number of participants
-  
-  int pid_test[N_obs_test];
+  matrix[N_obs_test,K+L] test_data; 
 }
 
 parameters {
@@ -32,11 +30,11 @@ parameters {
 
 transformed parameters {
   matrix [N_pts_train, L] beta;
-  beta = x2_test*gamma;
+  beta = x2_train*gamma;
 }
 
 model {
-  vector[N_obs] mu;
+  vector[N_obs_train] mu;
   to_vector(gamma) ~ normal(0,100);
   
   Omega ~ lkj_corr(1);
@@ -46,13 +44,17 @@ model {
   {
     matrix[L,L] Sigma_beta;
     Sigma_beta = quad_form_diag(Omega, tau);
-    for (j in 1:N_pts){
+    for (j in 1:N_pts_train){
       beta_p[, j] ~ multi_normal(beta[j], Sigma_beta);
     }
   }
-  for(i in 1:N_obs) {
-    mu[i] = (x[i] * (beta_p[, pid[i]])); // * is matrix multiplication in this context
+  for(i in 1:N_obs_train) {
+    mu[i] = (x_train[i] * (beta_p[, pid_train[i]])); // * is matrix multiplication in this context
   }
   
-  y ~ normal(mu, sigma);
+  y_train ~ normal(mu, sigma);
+}
+
+generated quantities {
+  vector[N_obs_test] y_new;
 }
