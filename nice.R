@@ -29,10 +29,29 @@ for(i in dat){
 #Split into test and train
 split <- tt_split(datasets = dat)
 
+#Compile STAN codes
+mod <- stan_model("pred_error_uninform.stan")
+
+#Data for STAN code
+lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y"))
+stan_dat <- list(
+  N_obs_train = nrow(split$Training[[1]]),
+  N_pts_train = max(as.numeric(split$Training[[1]]$id)),
+  L = 2, K = ncol(lev2_vars)+1,
+  pid_train = split$Training[[1]]$id,
+  x_train = cbind(1, split$Training[[1]]$time),
+  x2_train = cbind(1, lev2_vars),
+  y_train = split$Training[[1]]$Y,
+  N_obs_test = nrow(split$Testing[[1]]),
+  test_data = model.matrix(Y~(X1+X2+X3+X4)*time, data = split$Testing[[1]])
+)
+
+stan_fit <- stan(file = "pred_error_uninform.stan", data = stan_dat, iter = 2000, chains = 1)
 
 
 #Uninformative
 mod <- stan_model("test2b.stan")
-mod <- stan_model("pred_error_uninform.stan")
+
 
 #test <- predfunct(trainsets = split$Training, testsets = split$Testing, stan_file = "test2b.stan")
+holder <- model.matrix(Y~(X1+X2+X3+X4)*time, data = dat[[2]])

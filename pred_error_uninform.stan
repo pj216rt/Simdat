@@ -57,4 +57,8 @@ model {
 
 generated quantities {
   vector[N_obs_test] y_new;
+  //gam_test = to_vector(gamma)
+  for (n in 1:N_obs_test){
+    y_new[n] = normal_rng(test_data[n]*to_vector(gamma), sigma);
+  }
 }
