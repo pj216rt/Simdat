@@ -1,5 +1,6 @@
 //prediction error Uninformative
 data {
+  //Two sets of data training and testing
   //Testing
   int<lower=0> N_obs_test; // number of observations in training set
   int<lower=0> N_pts_test; // number of participants in training set
@@ -11,24 +12,28 @@ data {
   matrix[N_pts_test, K] x2_test;   // level 2 predictor matrix
   
   int pid_test[N_obs_test]; // participant id vector.  Vector will identify each participant in dataset
-  
-  int N_samples;
-  
-  vector[N_samples] gamma;
 }
 
 parameters {
-  
+  matrix[L, N_pts] beta_p;
+  vector<lower=0>[L] tau;      // prior scale
+  matrix[K,L] gamma; //level 2 coefficients
+  corr_matrix[L] Omega; // correlation matrix
+  real<lower=0> sigma; // population sigma
+}
+
+transformed parameters {
+  matrix [N_pts, L] beta;
+  beta = x2_test*gamma;
 }
 
 model {
+  vector[N_obs] mu;
+  to_vector(gamma) ~ normal(0,100);
   
-}
-
-generated quantities {
-  //predictions
-  matrix [N_pts_test, L] beta;
-  beta = x2_test*gamma;
+  Omega ~ lkj_corr(1);
+  tau ~ inv_gamma(1,7);
+  sigma ~ inv_gamma(1,7);
   
   {
     matrix[L,L] Sigma_beta;
@@ -37,12 +42,9 @@ generated quantities {
       beta_p[, j] ~ multi_normal(beta[j], Sigma_beta);
     }
   }
-  
-  matrix[N_samples, N_obs_test] y_test;
-  for(n in 1:N_obs_test){
-    for ( i in 1:N_samples){
-      y_test[i,n] = normal_rng(x_test)
-    }
+  for(i in 1:N_obs) {
+    mu[i] = (x[i] * (beta_p[, pid[i]])); // * is matrix multiplication in this context
   }
   
+  y ~ normal(mu, sigma);
 }

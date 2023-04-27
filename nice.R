@@ -27,7 +27,9 @@ for(i in dat){
 }
 
 #Split into test and train
-split <- tt_split(dataset = dat, ntrain = 400)
+split <- tt_split(datasets = dat)
+
+
 
 #Uninformative
 mod <- stan_model("test2b.stan")

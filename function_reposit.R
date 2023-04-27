@@ -124,15 +124,20 @@ gen_lots_data <- function(nreps = 10,
 }
 
 #Split data into test and train
-tt_split <- function(dataset, ntrain){
-  check <- list()
-  for(i in dataset){
-    train_ind <- sample(seq_len(nrow(i)), size = ntrain)
-    train <- i[train_ind, ]
-    test <- i[-train_ind, ]
+tt_split <- function(datasets, percent_train = 0.80){
+  train_dat <- list()
+  test_dat <- list()
+  for(i in seq_along(datasets)){
+    print("Hello")
+    data <- datasets[[i]]
+    dt <- sort(sample(nrow(data), nrow(data)*percent_train))
+    train <- data[dt, ]
+    test <- data[-dt, ]
+    train_dat[[i]] <- train
+    test_dat[[i]] <- test
   }
-  check <- list(Training = train, Testing = test)
-  return(check)
+  out <- list(Training = train_dat, Testing = test_dat)
+  return(out)
 }
 
 extract_lev2 <- function(dat, id, filter_num, 
