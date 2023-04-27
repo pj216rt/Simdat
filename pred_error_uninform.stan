@@ -1,21 +1,29 @@
 //prediction error Uninformative
 data {
   //Two sets of data training and testing
-  //Testing
-  int<lower=0> N_obs_test; // number of observations in training set
-  int<lower=0> N_pts_test; // number of participants in training set
+  //Training
+  int<lower=0> N_obs_train; // number of observations
+  int<lower=0> N_pts_train; // number of participants
   
   int<lower=0> K;   // number of level 2 predictors
   int<lower=0> L;   // number of level 1 predictors
   
-  matrix[N_obs_test,L] x_test; // level 1 predictors
-  matrix[N_pts_test, K] x2_test;   // level 2 predictor matrix
+  int pid_train[N_obs_train]; // participant id vector.  Vector will identify each participant in dataset
   
-  int pid_test[N_obs_test]; // participant id vector.  Vector will identify each participant in dataset
+  matrix[N_obs_train,L] x_train; // level 1 predictors
+  matrix[N_pts_train, K] x2_train;   // level 2 predictor matrix
+  
+  vector[N_obs_train] y_train;      // outcome vector
+  
+  //testing
+  int<lower=0> N_obs_test; // number of observations
+  int<lower=0> N_pts_test; // number of participants
+  
+  int pid_test[N_obs_test];
 }
 
 parameters {
-  matrix[L, N_pts] beta_p;
+  matrix[L, N_pts_train] beta_p;
   vector<lower=0>[L] tau;      // prior scale
   matrix[K,L] gamma; //level 2 coefficients
   corr_matrix[L] Omega; // correlation matrix
@@ -23,7 +31,7 @@ parameters {
 }
 
 transformed parameters {
-  matrix [N_pts, L] beta;
+  matrix [N_pts_train, L] beta;
   beta = x2_test*gamma;
 }
 
