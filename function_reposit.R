@@ -267,3 +267,10 @@ stan_out <- function(datasets, stan_file = "test2b.stan"){
 }
 
 #Prediction accuracy
+predfunct <- function(trainsets, testsets, stan_file){
+  output <- list()
+  print("Hello")
+  for(i in seq_along(datasets)){
+    
+  }
+}

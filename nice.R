@@ -32,5 +32,4 @@ split <- tt_split(dataset = dat, ntrain = 400)
 #Uninformative
 mod <- stan_model("test2b.stan")
 
-test <- stan_out(dat, stan_file = "test2b.stan")
-test
+test <- predfunct(trainsets = split$Training, testsets = split$Testing, stan_file = "test2b.stan")
