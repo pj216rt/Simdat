@@ -52,7 +52,7 @@ stan_dat <- list(
 )
 
 #STAN SAMPLING
-stan_fit <- stan(file = "pred_error_uninform.stan", data = stan_dat, iter = 2000, chains = 1)
+stan_fit <- stan(file = "pred_error_uninform.stan", data = stan_dat, iter = 4000, chains = 1)
 
 
 #Extract the values from this STAN sampling
@@ -64,5 +64,6 @@ pred_vals <- ext_fit$y_new
 
 df_of_draw <- as.data.frame(stan_fit)
 plot(df_of_draw$`y_new[172]`)
+mean(df_of_draw$`y_new[172]`)
 
-mean(apply(ext_fit$y_new, 2, median) == split$Testing[[1]]$Y)
+split$Testing[[1]]$Y[[172]]
