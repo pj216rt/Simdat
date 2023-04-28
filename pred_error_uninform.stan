@@ -45,12 +45,12 @@ model {
     matrix[L,L] Sigma_beta;
     Sigma_beta = quad_form_diag(Omega, tau);
     for (j in 1:N_pts_train){
-      #print(j);
+      //print(j);
       beta_p[, j] ~ multi_normal(beta[j], Sigma_beta);
     }
   }
   for(i in 1:N_obs_train) {
-    print(i);
+    //print(i);
     mu[i] = (x_train[i] * (beta_p[ , pid_train[i]])); // * error is on this line
   }
   
@@ -59,7 +59,6 @@ model {
 
 generated quantities {
   vector[N_obs_test] y_new;
-  //gam_test = to_vector(gamma)
   for (n in 1:N_obs_test){
     y_new[n] = normal_rng(test_data[n]*to_vector(gamma), sigma);
   }

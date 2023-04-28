@@ -134,8 +134,7 @@ tt_split <- function(datasets, var_to_select = id ,percent_train = 0.80){
     #Essentially create a new column that specifies what group each participant is in
     groups <- data %>% select(id) %>% distinct(id) %>% rowwise() %>%
       mutate(group = sample(
-        c("train", "test"),
-        1,
+        c("train", "test"), 1,
         replace = TRUE,
         prob = c(percent_train, (1-percent_train)) #weights for each group
       ))
@@ -143,13 +142,14 @@ tt_split <- function(datasets, var_to_select = id ,percent_train = 0.80){
     #left joined groups to the data
     data <- data %>% left_join(groups)
     
-    #dt <- sort(sample(nrow(data), nrow(data)*percent_train))
-    #train <- data[dt, ]
-    #test <- data[-dt, ]
-    #train_dat[[i]] <- train
-    #test_dat[[i]] <- test
+    #Split data into test and train
+    #Train data
     train_dat[[i]] <- filter(data, group == "train")
+    train_dat[[i]]$id.new <- match(train_dat[[i]]$id, unique(train_dat[[i]]$id))
+    
+    #Test data
     test_dat[[i]] <- filter(data, group == "test")
+    test_dat[[i]]$id.new <- match(test_dat[[i]]$id, unique(test_dat[[i]]$id))
   }
   out <- list(Training = train_dat, Testing = test_dat)
   return(out)

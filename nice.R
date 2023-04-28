@@ -34,16 +34,16 @@ mod <- stan_model("pred_error_uninform.stan")
 
 #Data for STAN code
 #extract level 2 variables
-lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y", "group"))
-
+lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y", 
+                                                                       "group", "id.new"))
 
 ###ERROR HERE ###
 #create list that STAN will use
 stan_dat <- list(
   N_obs_train = nrow(split$Training[[1]]),
-  N_pts_train = n_distinct(split$Training[[1]]$id),
+  N_pts_train = n_distinct(split$Training[[1]]$id.new),
   L = 2, K = ncol(lev2_vars)+1,
-  pid_train = split$Training[[1]]$id,
+  pid_train = split$Training[[1]]$id.new,
   x_train = cbind(1, split$Training[[1]]$time),
   x2_train = cbind(1, lev2_vars),
   y_train = split$Training[[1]]$Y,
@@ -53,3 +53,16 @@ stan_dat <- list(
 
 #STAN SAMPLING
 stan_fit <- stan(file = "pred_error_uninform.stan", data = stan_dat, iter = 2000, chains = 1)
+
+
+#Extract the values from this STAN sampling
+class(stan_fit)
+ext_fit <- rstan::extract(stan_fit)
+print(names(ext_fit))
+
+pred_vals <- ext_fit$y_new
+
+df_of_draw <- as.data.frame(stan_fit)
+plot(df_of_draw$`y_new[172]`)
+
+mean(apply(ext_fit$y_new, 2, median) == split$Testing[[1]]$Y)
