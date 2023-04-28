@@ -17,7 +17,7 @@ data {
   
   //testing
   int<lower=0> N_obs_test; // number of observations
-  matrix[N_obs_test,K+L] test_data; 
+  matrix[N_obs_test,K*L] test_data; 
 }
 
 parameters {

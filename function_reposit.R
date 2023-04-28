@@ -6,6 +6,7 @@ require(ggplot2)
 require(reshape2)
 require(rstan)
 require(dplyr)
+require(tidyverse)
 
 genData <- function(nSubjs = 100, sdErr = 1, 
                     # intercept and slope fixed effects
@@ -124,24 +125,38 @@ gen_lots_data <- function(nreps = 10,
 }
 
 #Split data into test and train
-tt_split <- function(datasets, percent_train = 0.80){
+tt_split <- function(datasets, var_to_select = id ,percent_train = 0.80){
   train_dat <- list()
   test_dat <- list()
   for(i in seq_along(datasets)){
-    print("Hello")
     data <- datasets[[i]]
-    dt <- sort(sample(nrow(data), nrow(data)*percent_train))
-    train <- data[dt, ]
-    test <- data[-dt, ]
-    train_dat[[i]] <- train
-    test_dat[[i]] <- test
+    
+    #Essentially create a new column that specifies what group each participant is in
+    groups <- data %>% select(id) %>% distinct(id) %>% rowwise() %>%
+      mutate(group = sample(
+        c("train", "test"),
+        1,
+        replace = TRUE,
+        prob = c(percent_train, (1-percent_train)) #weights for each group
+      ))
+    
+    #left joined groups to the data
+    data <- data %>% left_join(groups)
+    
+    #dt <- sort(sample(nrow(data), nrow(data)*percent_train))
+    #train <- data[dt, ]
+    #test <- data[-dt, ]
+    #train_dat[[i]] <- train
+    #test_dat[[i]] <- test
+    train_dat[[i]] <- filter(data, group == "train")
+    test_dat[[i]] <- filter(data, group == "test")
   }
   out <- list(Training = train_dat, Testing = test_dat)
   return(out)
 }
 
 extract_lev2 <- function(dat, id, filter_num, 
-                         cols_to_drop = c("time", "subject")){
+                         cols_to_drop = c("time", "subject", "group")){
   f <- dat %>% group_by(id) %>% filter(row_number()==filter_num)
   df <- f[, ! names(f) %in% cols_to_drop, drop = F]
   return(df)

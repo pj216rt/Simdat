@@ -33,10 +33,10 @@ split <- tt_split(datasets = dat)
 mod <- stan_model("pred_error_uninform.stan")
 
 #Data for STAN code
-lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y"))
+lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y", "group"))
 stan_dat <- list(
   N_obs_train = nrow(split$Training[[1]]),
-  N_pts_train = max(as.numeric(split$Training[[1]]$id)),
+  N_pts_train = nrow(lev2_vars),
   L = 2, K = ncol(lev2_vars)+1,
   pid_train = split$Training[[1]]$id,
   x_train = cbind(1, split$Training[[1]]$time),
