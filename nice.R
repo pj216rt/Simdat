@@ -33,10 +33,13 @@ split <- tt_split(datasets = dat)
 mod <- stan_model("pred_error_uninform.stan")
 
 #Data for STAN code
+#extract level 2 variables
 lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y", "group"))
+
+#create list that STAN will use
 stan_dat <- list(
   N_obs_train = nrow(split$Training[[1]]),
-  N_pts_train = nrow(lev2_vars),
+  N_pts_train = n_distinct(split$Training[[1]]$id),
   L = 2, K = ncol(lev2_vars)+1,
   pid_train = split$Training[[1]]$id,
   x_train = cbind(1, split$Training[[1]]$time),
@@ -47,7 +50,6 @@ stan_dat <- list(
 )
 
 stan_fit <- stan(file = "pred_error_uninform.stan", data = stan_dat, iter = 2000, chains = 1)
-
 
 #Uninformative
 mod <- stan_model("test2b.stan")
