@@ -45,11 +45,13 @@ model {
     matrix[L,L] Sigma_beta;
     Sigma_beta = quad_form_diag(Omega, tau);
     for (j in 1:N_pts_train){
+      #print(j);
       beta_p[, j] ~ multi_normal(beta[j], Sigma_beta);
     }
   }
   for(i in 1:N_obs_train) {
-    mu[i] = (x_train[i] * (beta_p[, pid_train[i]])); // * is matrix multiplication in this context
+    print(i);
+    mu[i] = (x_train[i] * (beta_p[ , pid_train[i]])); // * error is on this line
   }
   
   y_train ~ normal(mu, sigma);

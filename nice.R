@@ -36,6 +36,8 @@ mod <- stan_model("pred_error_uninform.stan")
 #extract level 2 variables
 lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y", "group"))
 
+
+###ERROR HERE ###
 #create list that STAN will use
 stan_dat <- list(
   N_obs_train = nrow(split$Training[[1]]),
@@ -46,14 +48,8 @@ stan_dat <- list(
   x2_train = cbind(1, lev2_vars),
   y_train = split$Training[[1]]$Y,
   N_obs_test = nrow(split$Testing[[1]]),
-  test_data = model.matrix(Y~(X1+X2+X3+X4)*time, data = split$Testing[[1]])
+  test_data = model.matrix(~(X1+X2+X3+X4)*time, data = split$Testing[[1]])
 )
 
+#STAN SAMPLING
 stan_fit <- stan(file = "pred_error_uninform.stan", data = stan_dat, iter = 2000, chains = 1)
-
-#Uninformative
-mod <- stan_model("test2b.stan")
-
-
-#test <- predfunct(trainsets = split$Training, testsets = split$Testing, stan_file = "test2b.stan")
-holder <- model.matrix(Y~(X1+X2+X3+X4)*time, data = dat[[2]])
