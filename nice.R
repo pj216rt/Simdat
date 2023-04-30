@@ -53,6 +53,8 @@ stan_dat <- list(
   test_data = model.matrix(~(X1+X2+X3+X4)*time, data = split$Testing[[1]])
 )
 
+#test1 <- stan_data_loop(datasets = split$Training, train_data = split$Training)
+
 #STAN SAMPLING
 stan_fit <- stan(file = "pred_error_uninform.stan", data = stan_dat, iter = 2000, chains = 1)
 
