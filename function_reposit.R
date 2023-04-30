@@ -292,30 +292,17 @@ multiple_extract_lev2_var <- function(datasets,
   output <- list()
   for(i in seq_along(datasets)){
     print("hello")
-    lev2_vars <- extract_lev2(datasets$Training[i], id, 1, cols_to_drop=cols_drop)
+    lev2_vars <- extract_lev2(datasets[[i]], id, 1, cols_to_drop=cols_drop)
     output[[i]] <- lev2_vars
   }
   return(output)
 }
 
-stan_data_loop <- function(datasets, train_data){
+
+stan_data_loop <- function(datasets){
   level2_vars <- multiple_extract_lev2_var(train_datasets = train_data)
   
   stan_dat <- list()
-  for(i in seq_along(datasets)){
-    temp <- list(
-      N_obs_train = nrow(split$Training[[i]]),
-      N_pts_train = n_distinct(split$Training[[i]]$id.new),
-      L = 2, K = ncol(lev2_vars)+1,
-      pid_train = split$Training[[i]]$id.new,
-      x_train = cbind(1, split$Training[[i]]$time),
-      x2_train = cbind(1, lev2_vars),
-      y_train = split$Training[[i]]$Y,
-      N_obs_test = nrow(split$Testing[[i]]),
-      test_data = model.matrix(~(X1+X2+X3+X4)*time, data = split$Testing[[i]])
-    )
-    stan_dat[[i]] <- temp
-  }
   return(stan_dat)
 }
 

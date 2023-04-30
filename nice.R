@@ -41,9 +41,10 @@ lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "ti
 
 for(i in seq_along(split$Training)){
   print("hello")
+  print(split$Training[[i]])
 }
 
-test <- multiple_extract_lev2_var(datasets = split)
+test <- multiple_extract_lev2_var(datasets = split$Training)
 split$Training[1]
 
 ###ERROR HERE ###
