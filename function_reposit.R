@@ -286,12 +286,13 @@ stan_out <- function(datasets, stan_file = "test2b.stan"){
   return(check)
 }
 
-multiple_extract_lev2_var <- function(train_datasets, 
+multiple_extract_lev2_var <- function(datasets, 
                                       cols_drop = c("id", "time", "Y", 
                                                     "group", "id.new")){
   output <- list()
-  for(i in seq_along(train_datasets)){
-    lev2_vars <- extract_lev2(split$Training[[i]], id, 1, cols_to_drop=cols_drop)
+  for(i in seq_along(datasets)){
+    print("hello")
+    lev2_vars <- extract_lev2(datasets$Training[i], id, 1, cols_to_drop=cols_drop)
     output[[i]] <- lev2_vars
   }
   return(output)
@@ -319,10 +320,10 @@ stan_data_loop <- function(datasets, train_data){
 }
 
 #Prediction accuracy
-predfunct <- function(trainsets, testsets, stan_file){
+predfunct <- function(stan_data_collection, stan_file = "pred_error_uninform.stan", method = "mean"){
   output <- list()
-  print("Hello")
-  for(i in seq_along(datasets)){
-    
+  for(i in seq_along(stan_data_collection)){
+    print("Hello")
+    stan_fit <- stan(file = stan_file, data = stan_data_collection[[i]], iter = 2000, chains = 1)
   }
 }

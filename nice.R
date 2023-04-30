@@ -28,6 +28,7 @@ for(i in dat){
 
 #Split into test and train
 split <- tt_split(datasets = dat)
+split$Training[[2]]
 
 #Compile STAN codes
 mod <- stan_model("pred_error_uninform.stan")
@@ -37,7 +38,13 @@ mod <- stan_model("pred_error_uninform.stan")
 lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y", 
                                                                        "group", "id.new"))
 
-#test <- multiple_extract_lev2_var(train_datasets = split$Training)
+
+for(i in seq_along(split$Training)){
+  print("hello")
+}
+
+test <- multiple_extract_lev2_var(datasets = split)
+split$Training[1]
 
 ###ERROR HERE ###
 #create list that STAN will use
@@ -53,7 +60,8 @@ stan_dat <- list(
   test_data = model.matrix(~(X1+X2+X3+X4)*time, data = split$Testing[[1]])
 )
 
-#test1 <- stan_data_loop(datasets = split$Training, train_data = split$Training)
+test1 <- stan_data_loop(datasets = split$Training, train_data = split$Training)
+predfunct(test1)
 
 #STAN SAMPLING
 stan_fit <- stan(file = "pred_error_uninform.stan", data = stan_dat, iter = 2000, chains = 1)
