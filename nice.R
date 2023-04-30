@@ -61,7 +61,8 @@ stan_dat <- list(
 )
 
 test1 <- stan_data_loop(training_datasets = split$Training, testing_datasets = split$Testing)
-#Error here  N_obs_train does not exist
+test1[[1]]
+#Error here  N_obs_train does not exist??
 predfunct(stan_data_collection = test1)
 
 #STAN SAMPLING

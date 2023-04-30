@@ -318,15 +318,17 @@ stan_data_loop <- function(training_datasets, testing_datasets){
       )
     stan_dat[[i]] <- temp
   }
-  print(stan_dat[[1]])
+  #print(stan_dat[[1]])
   return(stan_dat)
 }
 
 #Prediction accuracy
 predfunct <- function(stan_data_collection, stan_file = "pred_error_uninform.stan", method = "mean"){
   output <- list()
+  #stan_fit <- stan(file = stan_file, data = stan_data_collection[[1]], iter = 2000, chains = 1)
   for(i in seq_along(stan_data_collection)){
     print("Hello")
+    #print(stan_data_collection[[i]])
     stan_fit <- stan(file = stan_file, data = stan_data_collection[[i]], iter = 2000, chains = 1)
   }
 }
