@@ -291,8 +291,14 @@ multiple_extract_lev2_var <- function(train_datasets,
                                                     "group", "id.new")){
   output <- list()
   for(i in seq_along(train_datasets)){
-    lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop=cols_drop)
+    lev2_vars <- extract_lev2(split$Training[[i]], id, 1, cols_to_drop=cols_drop)
+    output[[i]] <- lev2_vars
   }
+  return(output)
+}
+
+stan_data_loop <- function(datasets){
+  
 }
 
 #Prediction accuracy

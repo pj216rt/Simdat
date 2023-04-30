@@ -37,6 +37,8 @@ mod <- stan_model("pred_error_uninform.stan")
 lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y", 
                                                                        "group", "id.new"))
 
+#test <- multiple_extract_lev2_var(train_datasets = split$Training)
+
 ###ERROR HERE ###
 #create list that STAN will use
 stan_dat <- list(
