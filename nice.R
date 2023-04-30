@@ -45,7 +45,6 @@ for(i in seq_along(split$Training)){
 }
 
 test <- multiple_extract_lev2_var(datasets = split$Training)
-split$Training[1]
 
 ###ERROR HERE ###
 #create list that STAN will use
@@ -61,8 +60,9 @@ stan_dat <- list(
   test_data = model.matrix(~(X1+X2+X3+X4)*time, data = split$Testing[[1]])
 )
 
-test1 <- stan_data_loop(datasets = split$Training, train_data = split$Training)
-predfunct(test1)
+test1 <- stan_data_loop(training_datasets = split$Training, testing_datasets = split$Testing)
+#Error here  N_obs_train does not exist
+predfunct(stan_data_collection = test1)
 
 #STAN SAMPLING
 stan_fit <- stan(file = "pred_error_uninform.stan", data = stan_dat, iter = 2000, chains = 1)
