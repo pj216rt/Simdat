@@ -286,6 +286,15 @@ stan_out <- function(datasets, stan_file = "test2b.stan"){
   return(check)
 }
 
+multiple_extract_lev2_var <- function(train_datasets, 
+                                      cols_drop = c("id", "time", "Y", 
+                                                    "group", "id.new")){
+  output <- list()
+  for(i in seq_along(train_datasets)){
+    lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop=cols_drop)
+  }
+}
+
 #Prediction accuracy
 predfunct <- function(trainsets, testsets, stan_file){
   output <- list()
