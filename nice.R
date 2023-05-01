@@ -81,3 +81,15 @@ colnames(test7) <- c("RMSE")
 plot(test7)
 
 #Elastic Net
+
+#Hyperlasso
+mod5 <- stan_model("pred_error_hyperlasso.stan")
+teste <- predfunct(stan_data_collection = test1, stan_file = "pred_error_hyperlasso.stan")
+test9 <- rmse_function(teste, split$Testing)
+test9 <- t(data.frame(test9))
+row.names(test9) <- 1:nrow(test9)
+colnames(test9) <- c("RMSE")
+plot(test9)
+
+#Horseshoe
+mod6 <- 

@@ -286,6 +286,7 @@ stan_out <- function(datasets, stan_file = "test2b.stan"){
   return(check)
 }
 
+#Extract level 2 variables across multiple datasets
 multiple_extract_lev2_var <- function(datasets, 
                                       cols_drop = c("id", "time", "Y", 
                                                     "group", "id.new")){
@@ -303,6 +304,7 @@ stan_data_loop <- function(training_datasets, testing_datasets){
   #print(level2_vars[[2]])
   stan_dat <- list()
   
+  #Creating lists of data to feed into STAN sampler
   for(i in seq_along(training_datasets)){
     holder <- as.data.frame(level2_vars[[i]])
     temp <- list(
@@ -337,7 +339,7 @@ predfunct <- function(stan_data_collection, stan_file = "pred_error_uninform.sta
   return(output)
 }
 
-#Function to calculate RMSE
+#Function to calculate RMSE from the predfunc, using the mean
 rmse_function <- function(collection_of_data, actual_ydat){
   output <- list()
   for(i in seq_along(collection_of_data)){
