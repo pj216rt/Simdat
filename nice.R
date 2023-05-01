@@ -29,17 +29,15 @@ for(i in dat){
 #Split into test and train
 split <- tt_split(datasets = dat)
 
-#Compile STAN codes
-mod <- stan_model("pred_error_uninform.stan")
-
 #Data for STAN code
 #extract level 2 variables
-lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y", 
-                                                                       "group", "id.new"))
-
+#lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y", 
+                                                                       #"group", "id.new"))
 #create list that STAN will use
 test1 <- stan_data_loop(training_datasets = split$Training, testing_datasets = split$Testing)
 
+#Compile STAN codes
+mod <- stan_model("pred_error_uninform.stan")
 #RUN STAN SAMPLER and extract output
 test2 <- predfunct(stan_data_collection = test1)
 
