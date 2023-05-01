@@ -92,4 +92,19 @@ colnames(test9) <- c("RMSE")
 plot(test9)
 
 #Horseshoe
-mod6 <- 
+mod6 <- stan_model("pred_error_horseshoe.stan")
+testf <- predfunct(stan_data_collection = test1, stan_file = "pred_error_horseshoe.stan")
+test10 <- rmse_function(testf, split$Testing)
+test10 <- t(data.frame(test10))
+row.names(test10) <- 1:nrow(test10)
+colnames(test10) <- c("RMSE")
+plot(test10)
+
+#Discrete Normal Mixture
+mod8 <- stan_model("pred_error_bernoulli_mixture.stan")
+testg <- predfunct(stan_data_collection = test1, stan_file = "pred_error_bernoulli_mixture.stan")
+test11 <- rmse_function(testg, split$Testing)
+test11 <- t(data.frame(test11))
+row.names(test11) <- 1:nrow(test11)
+colnames(test11) <- c("RMSE")
+plot(test11)

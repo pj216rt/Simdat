@@ -1,4 +1,4 @@
-//prediction error Horseshoe
+//Discrete Normal mixture with prediction 
 data {
   //Two sets of data training and testing
   //Training
@@ -27,23 +27,27 @@ parameters {
   corr_matrix[L] Omega; // correlation matrix
   real<lower=0> sigma2;
   
-  real<lower=0> lambda; //penalty parameter
-	real<lower=0> tau2;
+	vector<lower=0>[K*L] tau2;
 }
 
 transformed parameters {
   real<lower=0> sigma; // population sigma
+  vector[K*L] gamma_vec;
   matrix [N_pts_train, L] beta;
   beta = x2_train*gamma;
   
   sigma = sqrt(sigma2);
+  gamma_vec = to_vector(gamma);
 }
 
 model {
   vector[N_obs_train] mu;
-  to_vector(gamma) ~ normal(0, tau2^2);
-  tau2 ~ cauchy(0, lambda);
-	lambda ~ cauchy(0, sigma);
+  for(j in 1:(K*L)){
+    target += log_sum_exp(bernoulli_lpmf(0 | 0.5) + normal_lpdf(gamma_vec[j] | 0, sqrt(0.001)), 
+ 						  bernoulli_lpmf(1 | 0.5) + normal_lpdf(gamma_vec[j] | 0, sqrt(tau2[j])));
+  }
+  //to_vector(gamma) ~ double_exponential(0, sqrt(2*tau2));
+  tau2 ~ inv_gamma(0.5, 0.5);
   
   Omega ~ lkj_corr(1);
   tau ~ inv_gamma(1,7);
