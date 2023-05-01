@@ -49,3 +49,8 @@ test4 <- t(data.frame(test4))
 row.names(test4) <- 1:nrow(test4)
 colnames(test4) <- c("RMSE")
 plot(test4)
+
+#RIDGE Prior
+mod1 <- stan_model("pred_error_ridge.stan")
+
+testa <- predfunct(stan_data_collection = test1, stan_file = "pred_error_ridge.stan")
