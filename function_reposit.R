@@ -336,3 +336,17 @@ predfunct <- function(stan_data_collection, stan_file = "pred_error_uninform.sta
   }
   return(output)
 }
+
+#Function to calculate RMSE
+rmse_function <- function(collection_of_data, actual_ydat){
+  output <- list()
+  for(i in seq_along(collection_of_data)){
+    print("Hello")
+    temp <- test2[[i]][, c("mean")]
+    names(temp) <- NULL
+    
+    temp2 <- sqrt(mean((actual_ydat[[i]]$Y - temp)^2))
+    output[[i]] <- temp2
+  }
+  return(output)
+}

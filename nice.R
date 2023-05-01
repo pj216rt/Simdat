@@ -3,7 +3,7 @@ source("function_reposit.R")
 set.seed(1234)
 
 #Simulate data,
-dat <- gen_lots_data(nreps = 1,nSubjs = 200, sdErr = 10, 
+dat <- gen_lots_data(nreps = 5,nSubjs = 200, sdErr = 10, 
                      # intercept and slope fixed effects
                      coef1 = c(4, 3),
                      # types of level 2 covariates
@@ -37,46 +37,15 @@ mod <- stan_model("pred_error_uninform.stan")
 lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y", 
                                                                        "group", "id.new"))
 
-test <- multiple_extract_lev2_var(datasets = split$Training)
-
-###ERROR HERE ###
 #create list that STAN will use
-stan_dat <- list(
-  N_obs_train = nrow(split$Training[[1]]),
-  N_pts_train = n_distinct(split$Training[[1]]$id.new),
-  L = 2, K = ncol(lev2_vars)+1,
-  pid_train = split$Training[[1]]$id.new,
-  x_train = cbind(1, split$Training[[1]]$time),
-  x2_train = cbind(1, lev2_vars),
-  y_train = split$Training[[1]]$Y,
-  N_obs_test = nrow(split$Testing[[1]]),
-  test_data = model.matrix(~(X1+X2+X3+X4)*time, data = split$Testing[[1]])
-)
-
 test1 <- stan_data_loop(training_datasets = split$Training, testing_datasets = split$Testing)
-test1[[1]]
-#Error here  N_obs_train does not exist??
+
+#RUN STAN SAMPLER and extract output
 test2 <- predfunct(stan_data_collection = test1)
-test3 <- test2[[1]][, c("mean")]
-names(test3) <- NULL
 
-sqrt(mean((split$Testing[[1]]$Y - test3)^2))
-
-#STAN SAMPLING
-stan_fit <- stan(file = "pred_error_uninform.stan", data = stan_dat, iter = 2000, chains = 1)
-
-
-#Extract the values from this STAN sampling
-class(stan_fit)
-ext_fit <- rstan::extract(stan_fit)
-print(names(ext_fit))
-
-pred_vals <- ext_fit$y_new
-
-df_of_draw <- as.data.frame(stan_fit)
-df_of_draw$`y_new[168]`
-plot(df_of_draw$`y_new[168]`)
-mean(df_of_draw$`y_new[168]`)
-median(df_of_draw$`y_new[168]`)
-
-split$Testing[[1]]$Y[[168]]
+#RMSE from results of test2
+test4 <- rmse_function(test2, split$Testing)
+test4 <- t(data.frame(test4))
+row.names(test4) <- 1:nrow(test4)
+colnames(test4) <- c("RMSE")
+plot(test4)
