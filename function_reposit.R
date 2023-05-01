@@ -344,7 +344,7 @@ rmse_function <- function(collection_of_data, actual_ydat){
   output <- list()
   for(i in seq_along(collection_of_data)){
     print("Hello")
-    temp <- test2[[i]][, c("mean")]
+    temp <- collection_of_data[[i]][, c("mean")]
     names(temp) <- NULL
     
     temp2 <- sqrt(mean((actual_ydat[[i]]$Y - temp)^2))

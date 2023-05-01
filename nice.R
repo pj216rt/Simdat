@@ -108,3 +108,12 @@ test11 <- t(data.frame(test11))
 row.names(test11) <- 1:nrow(test11)
 colnames(test11) <- c("RMSE")
 plot(test11)
+
+#Uniform normal mixture
+mod9 <- stan_model("pred_error_uniformmix.stan")
+testh <- predfunct(stan_data_collection = test1, stan_file = "pred_error_uniformmix.stan")
+test12 <- rmse_function(testh, split$Testing)
+test12 <- t(data.frame(test12))
+row.names(test12) <- 1:nrow(test12)
+colnames(test12) <- c("RMSE")
+plot(test12)
