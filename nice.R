@@ -54,3 +54,30 @@ plot(test4)
 mod1 <- stan_model("pred_error_ridge.stan")
 
 testa <- predfunct(stan_data_collection = test1, stan_file = "pred_error_ridge.stan")
+test5 <- rmse_function(testa, split$Testing)
+test5 <- t(data.frame(test5))
+row.names(test5) <- 1:nrow(test5)
+colnames(test5) <- c("RMSE")
+plot(test5)
+
+#Local Student t 
+mod2 <- stan_model("pred_error_studentt.stan")
+
+testb <- predfunct(stan_data_collection = test1, stan_file = "pred_error_studentt.stan")
+test6 <- rmse_function(testb, split$Testing)
+test6 <- t(data.frame(test6))
+row.names(test6) <- 1:nrow(test6)
+colnames(test6) <- c("RMSE")
+plot(test6)
+
+#LASSO
+mod3 <- stan_model("pred_error_lasso.stan")
+
+testc <- predfunct(stan_data_collection = test1, stan_file = "pred_error_lasso.stan")
+test7 <- rmse_function(testc, split$Testing)
+test7 <- t(data.frame(test7))
+row.names(test7) <- 1:nrow(test7)
+colnames(test7) <- c("RMSE")
+plot(test7)
+
+#Elastic Net
