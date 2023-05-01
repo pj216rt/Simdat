@@ -3,7 +3,7 @@ source("function_reposit.R")
 set.seed(1234)
 
 #Simulate data,
-dat <- gen_lots_data(nreps = 4,nSubjs = 200, sdErr = 10, 
+dat <- gen_lots_data(nreps = 1,nSubjs = 200, sdErr = 10, 
                      # intercept and slope fixed effects
                      coef1 = c(4, 3),
                      # types of level 2 covariates
@@ -28,7 +28,6 @@ for(i in dat){
 
 #Split into test and train
 split <- tt_split(datasets = dat)
-split$Training[[2]]
 
 #Compile STAN codes
 mod <- stan_model("pred_error_uninform.stan")
@@ -37,12 +36,6 @@ mod <- stan_model("pred_error_uninform.stan")
 #extract level 2 variables
 lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y", 
                                                                        "group", "id.new"))
-
-
-for(i in seq_along(split$Training)){
-  print("hello")
-  print(split$Training[[i]])
-}
 
 test <- multiple_extract_lev2_var(datasets = split$Training)
 
@@ -63,7 +56,11 @@ stan_dat <- list(
 test1 <- stan_data_loop(training_datasets = split$Training, testing_datasets = split$Testing)
 test1[[1]]
 #Error here  N_obs_train does not exist??
-predfunct(stan_data_collection = test1)
+test2 <- predfunct(stan_data_collection = test1)
+test3 <- test2[[1]][, c("mean")]
+names(test3) <- NULL
+
+sqrt(mean((split$Testing[[1]]$Y - test3)^2))
 
 #STAN SAMPLING
 stan_fit <- stan(file = "pred_error_uninform.stan", data = stan_dat, iter = 2000, chains = 1)
