@@ -129,7 +129,7 @@ split1 <- tt_split(datasets = dat1)
 #Save this split data
 save(split1, file = "Split_data_Simulations1")
 
-test1a <- stan_data_loop(training_datasets = split1$Training, testing_datasets = split1$Testing)
+test1a <- stan_data_loop1(training_datasets = split1$Training, testing_datasets = split1$Testing)
 
 #Compile STAN codes
 mod <- stan_model("pred_error_uninform.stan")
@@ -137,5 +137,5 @@ mod <- stan_model("pred_error_uninform.stan")
 test2a <- stan_out(stan_data_collection = test1a)
 
 #RMSE from results of test2
-test4 <- rmse_function(test2, split$Testing)
+test4a <- rmse_function(test2a, split1$Testing)
 test4 <- cleaning(test4)
