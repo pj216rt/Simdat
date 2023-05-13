@@ -29,6 +29,9 @@ for(i in dat){
 #Split into test and train
 split <- tt_split(datasets = dat)
 
+#Save this split data
+save(split, file = "Split_data_Simulations")
+
 #Data for STAN code
 #extract level 2 variables
 #lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y", 
@@ -120,4 +123,4 @@ plot(test12)
 
 #Test
 playdoh <- stan_out(stan_data_collection = test1)
-playdoh[[1]]
+summary(playdoh[[1]], probs=c(0.1, 0.9))$summary
