@@ -76,10 +76,7 @@ mod3 <- stan_model("pred_error_lasso.stan")
 
 testc <- predfunct(stan_data_collection = test1, stan_file = "pred_error_lasso.stan")
 test7 <- rmse_function(testc, split$Testing)
-test7 <- t(data.frame(test7))
-row.names(test7) <- 1:nrow(test7)
-colnames(test7) <- c("RMSE")
-plot(test7)
+test7 <- cleaning(test7)
 
 #Elastic Net
 
@@ -87,37 +84,25 @@ plot(test7)
 mod5 <- stan_model("pred_error_hyperlasso.stan")
 teste <- predfunct(stan_data_collection = test1, stan_file = "pred_error_hyperlasso.stan")
 test9 <- rmse_function(teste, split$Testing)
-test9 <- t(data.frame(test9))
-row.names(test9) <- 1:nrow(test9)
-colnames(test9) <- c("RMSE")
-plot(test9)
+test9 <- cleaning(test9)
 
 #Horseshoe
 mod6 <- stan_model("pred_error_horseshoe.stan")
 testf <- predfunct(stan_data_collection = test1, stan_file = "pred_error_horseshoe.stan")
 test10 <- rmse_function(testf, split$Testing)
-test10 <- t(data.frame(test10))
-row.names(test10) <- 1:nrow(test10)
-colnames(test10) <- c("RMSE")
-plot(test10)
+test10 <- cleaning(test10)
 
 #Discrete Normal Mixture
 mod8 <- stan_model("pred_error_bernoulli_mixture.stan")
 testg <- predfunct(stan_data_collection = test1, stan_file = "pred_error_bernoulli_mixture.stan")
 test11 <- rmse_function(testg, split$Testing)
-test11 <- t(data.frame(test11))
-row.names(test11) <- 1:nrow(test11)
-colnames(test11) <- c("RMSE")
-plot(test11)
+test11 <- cleaning(test11)
 
 #Uniform normal mixture
 mod9 <- stan_model("pred_error_uniformmix.stan")
 testh <- predfunct(stan_data_collection = test1, stan_file = "pred_error_uniformmix.stan")
 test12 <- rmse_function(testh, split$Testing)
-test12 <- t(data.frame(test12))
-row.names(test12) <- 1:nrow(test12)
-colnames(test12) <- c("RMSE")
-plot(test12)
+test12 <- cleaning(test12)
 
 #Test
 playdoh <- stan_out(stan_data_collection = test1)
