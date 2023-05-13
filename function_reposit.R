@@ -342,7 +342,14 @@ predfunct <- function(stan_data_collection, stan_file = "pred_error_uninform.sta
 #function to extract all of the STAN output
 stan_out <- function(stan_data_collection, stan_file = "pred_error_uninform.stan", method = "mean"){
   output <- list()
-  
+  for(i in seq_along(stan_data_collection)){
+    print("Hello")
+    #print(stan_data_collection[[i]])
+    stan_fit <- stan(file = stan_file, data = stan_data_collection[[i]], iter = 2000, chains = 1)
+    df_of_draws <- summary(stan_fit)
+    output[[i]] <- df_of_draws
+  }
+  return(output)
 }
 
 #Function to calculate RMSE from the predfunc, using the mean

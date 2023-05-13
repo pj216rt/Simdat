@@ -115,3 +115,9 @@ test12 <- t(data.frame(test12))
 row.names(test12) <- 1:nrow(test12)
 colnames(test12) <- c("RMSE")
 plot(test12)
+
+
+
+#Test
+playdoh <- stan_out(stan_data_collection = test1)
+playdoh[[1]]
