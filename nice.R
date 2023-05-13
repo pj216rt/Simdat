@@ -123,4 +123,4 @@ plot(test12)
 
 #Test
 playdoh <- stan_out(stan_data_collection = test1)
-summary(playdoh[[1]], probs=c(0.1, 0.9))$summary
+playdoh[[1]]

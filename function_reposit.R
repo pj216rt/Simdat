@@ -324,6 +324,25 @@ stan_data_loop <- function(training_datasets, testing_datasets){
   return(stan_dat)
 }
 
+#function to extract all of the STAN output
+stan_out <- function(stan_data_collection, stan_file = "pred_error_uninform.stan", iterations = 2000,
+                     chains_to_run = 1){
+  output <- list()
+  for(i in seq_along(stan_data_collection)){
+    print("Hello")
+    #print(stan_data_collection[[i]])
+    stan_fit <- stan(file = stan_file, data = stan_data_collection[[i]], iter = iterations, 
+                     chains = chains_to_run)
+    df_of_draws <- stan_fit
+    output[[i]] <- df_of_draws
+  }
+  return(output)
+}
+
+prediction_accuracy <- function(){
+  output <- list()
+}
+
 #Prediction accuracy
 #Do stan sampling for each of the repeated simulated data that we have
 predfunct <- function(stan_data_collection, stan_file = "pred_error_uninform.stan", method = "mean"){
@@ -334,19 +353,6 @@ predfunct <- function(stan_data_collection, stan_file = "pred_error_uninform.sta
     #print(stan_data_collection[[i]])
     stan_fit <- stan(file = stan_file, data = stan_data_collection[[i]], iter = 2000, chains = 1)
     df_of_draws <- summary(stan_fit, pars = c("y_new"), probs = c(0.1, 0.9))$summary
-    output[[i]] <- df_of_draws
-  }
-  return(output)
-}
-
-#function to extract all of the STAN output
-stan_out <- function(stan_data_collection, stan_file = "pred_error_uninform.stan", method = "mean"){
-  output <- list()
-  for(i in seq_along(stan_data_collection)){
-    print("Hello")
-    #print(stan_data_collection[[i]])
-    stan_fit <- stan(file = stan_file, data = stan_data_collection[[i]], iter = 2000, chains = 1)
-    df_of_draws <- summary(stan_fit)
     output[[i]] <- df_of_draws
   }
   return(output)
