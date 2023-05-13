@@ -97,7 +97,7 @@ genData <- function(nSubjs = 100, sdErr = 1,
 }
 
 ###Want to generate data where every subject is observed a constant number of times
-genData_balanced <- function(nSubjs = 100, num_obs = 5, sdErr = 1, 
+genData_balanced <- function(nSubjs = 100, num_obs = 5, sdErr = 10, 
                     # intercept and slope fixed effects
                     coef1 = c(4, 3),
                     # types of level 2 covariates
@@ -467,4 +467,12 @@ rmse_function <- function(collection_of_data, actual_ydat){
     output[[i]] <- temp2
   }
   return(output)
+}
+
+#Clean RMSE data
+cleaning <- function(RMSEvals){
+  temp <- t(data.frame(RMSEvals))
+  row.names(temp) <- 1:nrow(temp)
+  colnames(temp) <- c("RMSE")
+  plot(temp)
 }
