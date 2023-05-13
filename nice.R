@@ -32,10 +32,6 @@ split <- tt_split(datasets = dat)
 #Save this split data
 save(split, file = "Split_data_Simulations")
 
-#Data for STAN code
-#extract level 2 variables
-#lev2_vars <- extract_lev2(split$Training[[1]], id, 1, cols_to_drop = c("id", "time", "Y", 
-                                                                       #"group", "id.new"))
 #create list that STAN will use
 test1 <- stan_data_loop(training_datasets = split$Training, testing_datasets = split$Testing)
 
@@ -46,30 +42,21 @@ test2 <- predfunct(stan_data_collection = test1)
 
 #RMSE from results of test2
 test4 <- rmse_function(test2, split$Testing)
-test4 <- t(data.frame(test4))
-row.names(test4) <- 1:nrow(test4)
-colnames(test4) <- c("RMSE")
-plot(test4)
+test4 <- cleaning(test4)
 
 #RIDGE Prior
 mod1 <- stan_model("pred_error_ridge.stan")
 
 testa <- predfunct(stan_data_collection = test1, stan_file = "pred_error_ridge.stan")
 test5 <- rmse_function(testa, split$Testing)
-test5 <- t(data.frame(test5))
-row.names(test5) <- 1:nrow(test5)
-colnames(test5) <- c("RMSE")
-plot(test5)
+test5 <- cleaning(test5)
 
 #Local Student t 
 mod2 <- stan_model("pred_error_studentt.stan")
 
 testb <- predfunct(stan_data_collection = test1, stan_file = "pred_error_studentt.stan")
 test6 <- rmse_function(testb, split$Testing)
-test6 <- t(data.frame(test6))
-row.names(test6) <- 1:nrow(test6)
-colnames(test6) <- c("RMSE")
-plot(test6)
+test6 <- cleaning(test6)
 
 #LASSO
 mod3 <- stan_model("pred_error_lasso.stan")
@@ -110,6 +97,3 @@ playdoh[[1]]
 playdoh2 <- stan_output_extract(playdoh)
 playdoh2[[1]]
 rmse_function(playdoh2, split$Testing)
-
-
-
