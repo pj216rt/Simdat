@@ -134,7 +134,7 @@ test1a <- stan_data_loop(training_datasets = split1$Training, testing_datasets =
 #Compile STAN codes
 mod <- stan_model("pred_error_uninform.stan")
 #RUN STAN SAMPLER and extract output
-test2a <- predfunct(stan_data_collection = test1a)
+test2a <- stan_out(stan_data_collection = test1a)
 
 #RMSE from results of test2
 test4 <- rmse_function(test2, split$Testing)
