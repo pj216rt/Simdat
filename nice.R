@@ -124,3 +124,5 @@ plot(test12)
 #Test
 playdoh <- stan_out(stan_data_collection = test1)
 playdoh[[1]]
+playdoh2 <- stan_output_extract(playdoh)
+playdoh2[[1]]
