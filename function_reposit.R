@@ -121,7 +121,7 @@ genData_balanced <- function(nSubjs = 100, num_obs = 5, sdErr = 10,
   ids <- 1:nSubjs
   
   # number of observation times for each subject
-  ntimes <- num_obs
+  ntimes <- replicate(n=nSubjs, num_obs)
   # subject observation times (stacked)
   subjTimes <- sequence(ntimes, from = 0, by = 1)
   
