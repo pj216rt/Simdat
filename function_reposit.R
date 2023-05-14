@@ -642,7 +642,7 @@ stan_data_loop1 <- function(training_datasets, testing_datasets){
       x2_train = cbind(1, holder),
       y_train = training_datasets[[i]]$Y,
       N_obs_test = nrow(split$Testing[[i]]),
-      test_data = model.matrix(~(X1+X2+X3+X4+X5+X6+X7+X8)*time, data = testing_datasets[[i]])
+      test_data = model.matrix(~(X1+X2+X3+X4+X5+X6+X7+X8+X9+X10)*time, data = testing_datasets[[i]])
     )
     stan_dat[[i]] <- temp
   }

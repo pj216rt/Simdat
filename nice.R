@@ -92,8 +92,49 @@ test12 <- rmse_function(testh, split$Testing)
 test12 <- cleaning(test12)
 
 
+#Adding more data
+playground <- gen_lots_data(nreps = 5, level2Binary = c(.2, 0.7, 0.5, 0.5, 0.1),
+                            level2Continuous = list(c(mu = 0, sd = 1),
+                                                    c(mu = 5, sd = 1),
+                                                    c(mu = 10, sd = 4),
+                                                    c(mu = 11, sd = 6),
+                                                    c(mu = 5, sd = 1)),
+                            coef2Binary = list(c(int2 = 2.0, slope2 = 1.0),
+                                               c(int2 = 1.0, slope2 = 3.0),
+                                               c(int2 = -1.0, slope2 = 8.0),
+                                               c(int2 = 9.0, slope2 = -4.0),
+                                               c(int2 = 0.0, slope2 = 0.0)),
+                            coef2Continuous = list(c(int2 = 1.0, slope2 = -3.0),
+                                                   c(int2 = 0.0, slope2 = 3.0),
+                                                   c(int2 = 4.0, slope2 = 2.0),
+                                                   c(int2 = 0.0, slope2 = -1.0),
+                                                   c(int2 = 0.0, slope2 = 3.0)))
 
-#Generate lots of data with Truncated Poisson distribution
+#We need to scale the data now
+for(i in seq_along(playground)){
+  playground[[i]] <- playground[[i]] %>% 
+    mutate_at(c("X6", "X7", "X8", "X9", "X10"), ~(scale(.) %>% as.vector))
+}
+
+#Split into test and train
+split <- tt_split(datasets = playground)
+
+test1 <- stan_data_loop1(training_datasets = split$Training, testing_datasets = split$Testing)
+
+#Compile STAN codes
+mod <- stan_model("pred_error_uninform.stan")
+#RUN STAN SAMPLER and extract output
+test2 <- predfunct(stan_data_collection = test1)
+test4 <- rmse_function(test2, split$Testing)
+test4 <- cleaning(test4)
+
+test2 <- stan_out(test1)
+plot(test2[[1]], show_density = TRUE, ci_level = 0.5, pars = c("gamma[2,2]", "gamma[6,1]"), 
+     fill_color = "purple")
+test3 <- stan_output_extract(test2, pars_to_consider = c("gamma"),probabilities = c(0.2, 0.8))
+print(test3)
+
+i#Generate lots of data with Truncated Poisson distribution
 playdoh2 <- gen_lots_data_trunc_Poisson(nreps = 5,nSubjs = 200, sdErr = 10, 
                                         # intercept and slope fixed effects
                                         coef1 = c(4, 3),
