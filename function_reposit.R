@@ -7,7 +7,6 @@ require(reshape2)
 require(rstan)
 require(dplyr)
 require(tidyverse)
-require(extraDistr)
 
 genData <- function(nSubjs = 100, sdErr = 1, 
                     # intercept and slope fixed effects
@@ -68,7 +67,7 @@ genData <- function(nSubjs = 100, sdErr = 1,
   
   # subject-specific (level 2) intercept and slope
   allcoefs <- matrix(c(unlist(coef2Binary), unlist(coef2Continuous)), nrow = 2)
-  print(allcoef)
+  #print(allcoef)
   rownames(allcoefs) <- c("int2", "slope2")
   coef2int <- allcoefs[1,]
   coef2slope <- allcoefs[2,]

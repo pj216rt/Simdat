@@ -2,10 +2,11 @@
 source("function_reposit.R")
 set.seed(1234)
 
-samp_sizes <- c(20, 50, 100, 200, 500)
+sample_sizes <- c(20, 50, 100, 200, 500)
 
 #Simulate data, small dimensionality, increasing in sample size from 20 to 500
-dat <- gen_lots_data(nreps = 5,nSubjs = 200, sdErr = 10, 
+#20
+dat <- gen_lots_data(nreps = 5,nSubjs = 20, sdErr = 10, 
                      # intercept and slope fixed effects
                      coef1 = c(4, 3),
                      # types of level 2 covariates
@@ -27,3 +28,14 @@ dat <- gen_lots_data(nreps = 5,nSubjs = 200, sdErr = 10,
 for(i in seq_along(dat)){
   dat[[i]] <- dat[[i]] %>% mutate_at(c("X3", "X4"), ~(scale(.) %>% as.vector))
 }
+
+#Split into test and train
+split <- tt_split(datasets = dat)
+save(split, file = "Split_data_Simulations")
+
+#create list that STAN will use
+test1 <- stan_data_loop(training_datasets = split$Training, testing_datasets = split$Testing)
+
+#Compile STAN codes
+mod <- stan_model("pred_error_uninform.stan")
+results <- stan_out(test1)
