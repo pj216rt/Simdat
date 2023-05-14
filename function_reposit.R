@@ -307,7 +307,7 @@ gen_lots_data <- function(nreps = 10,
 }
 
 #Generate lots of data with truncated Poisson for visits
-gen_lots_data <- function(nreps = 10,
+gen_lots_data_trunc_Poisson <- function(nreps = 10,
                           nSubjs = 100, sdErr = 1, 
                           # intercept and slope fixed effects
                           coef1 = c(4, 3),
