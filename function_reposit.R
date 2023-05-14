@@ -305,6 +305,34 @@ gen_lots_data <- function(nreps = 10,
   return(simdata)
 }
 
+#Balanced datasets
+gen_balanced_datasets <- function(nreps = 10, nSubjs = 100, num_obs = 5, sdErr = 10, 
+                                  # intercept and slope fixed effects
+                                  coef1 = c(4, 3),
+                                  # types of level 2 covariates
+                                  level2Binary = c(.2, 0.7),
+                                  level2Continuous = list(c(mu = 0, sd = 1),
+                                                          c(mu = 5, sd = 1)),
+                                  # corr between errors on subject-specific int and slope
+                                  corrRE = 0.20,
+                                  # sd of errors on subject-specific int and slope
+                                  sdRE = c(1, 1),
+                                  # for each predictor in level 2, (int2, slope2) 
+                                  # specify effect on level 2 intercept and level 2 slope
+                                  coef2Binary = list(c(int2 = 2.0, slope2 = 1.0),
+                                                     c(int2 = 1.0, slope2 = 3.0)),
+                                  coef2Continuous = list(c(int2 = 1.0, slope2 = 1.5),
+                                                         c(int2 = 0.2, slope2 = 3.0))){
+  
+  #generate nreps datasets
+  simdata <- list()
+  for(i in 1:nreps){
+    simdata[[i]] <- genData_balanced(nSubjs, num_obs, sdErr, coef1, level2Binary, 
+                                     level2Continuous, corrRE, sdRE,coef2Binary,coef2Continuous)
+  }
+  return(simdata)
+}
+
 #Generate lots of data with truncated Poisson for visits
 gen_lots_data_trunc_Poisson <- function(nreps = 10,
                           nSubjs = 100, sdErr = 1, 
