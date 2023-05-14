@@ -22,8 +22,8 @@ dat <- gen_lots_data(nreps = 5,nSubjs = 200, sdErr = 10,
                                                        c(int2 = 0.0, slope2 = 3.0)))
 
 #We need to scale the data now
-for(i in dat){
-  i <- i %>% mutate_at(c("X3", "X4"), ~(scale(.) %>% as.vector))
+for(i in seq_along(dat)){
+  dat[[i]] <- dat[[i]] %>% mutate_at(c("X3", "X4"), ~(scale(.) %>% as.vector))
 }
 
 #Split into test and train
@@ -91,7 +91,9 @@ testh <- predfunct(stan_data_collection = test1, stan_file = "pred_error_uniform
 test12 <- rmse_function(testh, split$Testing)
 test12 <- cleaning(test12)
 
-playdoh <- genData_truncPoisson()
+
+
+#Generate lots of data with Truncated Poisson distribution
 playdoh2 <- gen_lots_data_trunc_Poisson(nreps = 5,nSubjs = 200, sdErr = 10, 
                                         # intercept and slope fixed effects
                                         coef1 = c(4, 3),
@@ -109,3 +111,23 @@ playdoh2 <- gen_lots_data_trunc_Poisson(nreps = 5,nSubjs = 200, sdErr = 10,
                                                            c(int2 = 1.0, slope2 = 3.0)),
                                         coef2Continuous = list(c(int2 = 1.0, slope2 = -3.0),
                                                                c(int2 = 0.0, slope2 = 3.0)))
+
+#We need to scale the data now
+for(i in seq_along(playdoh2)){
+  playdoh2[[i]] <- playdoh2[[i]] %>% mutate_at(c("X3", "X4"), ~(scale(.) %>% as.vector))
+}
+
+head(playdoh2[[1]])
+
+#Split into test and train
+split1 <- tt_split(datasets = playdoh2)
+
+#Save this split data
+save(split1, file = "Split_data_Simulations1")
+
+#create list that STAN will use
+test1a <- stan_data_loop(training_datasets = split1$Training, testing_datasets = split1$Testing)
+
+#Compile STAN codes
+mod <- stan_model("pred_error_uninform.stan")
+test2a <- stan_out(stan_data_collection = test1a)

@@ -549,6 +549,7 @@ stan_out <- function(stan_data_collection, stan_file = "pred_error_uninform.stan
   return(output)
 }
 
+#Extract the output from the stan sampling function
 stan_output_extract <- function(complete_stan_data, pars_to_consider = c("y_new"),
                                 probabilities = c(0.1, 0.9)){
   output <- list()
