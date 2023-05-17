@@ -3,7 +3,7 @@
 source("function_reposit.R")
 set.seed(1234)
 
-num_datsets <- 500
+num_datsets <- 50
 dat <- gen_balanced_datasets(nreps = num_datsets, nSubjs = 240, num_obs = 5, sdErr = 10, 
                              # intercept and slope fixed effects
                              coef1 = c(4, 3),
@@ -21,3 +21,10 @@ dat <- gen_balanced_datasets(nreps = num_datsets, nSubjs = 240, num_obs = 5, sdE
                                                 c(int2 = 1.0, slope2 = 3.0)),
                              coef2Continuous = list(c(int2 = 1.0, slope2 = -3.0),
                                                     c(int2 = 0.0, slope2 = 3.0)))
+#We need to scale the data now
+for(i in seq_along(dat)){
+  dat[[i]] <- dat[[i]] %>% mutate_at(c("X3", "X4"), ~(scale(.) %>% as.vector))
+}
+
+#Split into test and train
+split <- tt_split(datasets = dat, percent_train = 0.80)
