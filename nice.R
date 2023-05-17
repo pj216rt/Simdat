@@ -124,17 +124,23 @@ test1 <- stan_data_loop1(training_datasets = split$Training, testing_datasets = 
 #Compile STAN codes
 mod <- stan_model("pred_error_uninform.stan")
 #RUN STAN SAMPLER and extract output
-test2 <- predfunct(stan_data_collection = test1)
+test2 <- predfunct(stan_data_collection = test1, stan_file = "pred_error_ridge.stan")
 test4 <- rmse_function(test2, split$Testing)
 test4 <- cleaning(test4)
 
-test2 <- stan_out(test1)
-plot(test2[[1]], show_density = TRUE, ci_level = 0.5, pars = c("gamma[2,2]", "gamma[6,1]"), 
+test2 <- stan_out(test1, stan_file = "pred_error_ridge.stan")
+plot(test2[[1]], show_density = TRUE, ci_level = 0.5, pars = c("gamma[8,1]"), 
      fill_color = "purple")
-test3 <- stan_output_extract(test2, pars_to_consider = c("gamma"),probabilities = c(0.2, 0.8))
+test3 <- stan_output_extract(test2, pars_to_consider = c("gamma"),probabilities = c(0.3, 0.7))
 print(test3)
 
-i#Generate lots of data with Truncated Poisson distribution
+
+
+
+
+
+
+#Generate lots of data with Truncated Poisson distribution
 playdoh2 <- gen_lots_data_trunc_Poisson(nreps = 5,nSubjs = 200, sdErr = 10, 
                                         # intercept and slope fixed effects
                                         coef1 = c(4, 3),
