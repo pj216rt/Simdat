@@ -22,3 +22,7 @@ clusterCall(cl, function() library(rstan))
 clusterCall(cl, function() library(bayesplot))
 out <- clusterApplyLB(cl, 1:nrow(conditions), simulate.bunches, cond=conditions) # run simulation
 stopCluster(cl) #shut down the nodes
+
+
+list.files()[grep("simdata_sim1", list.files())]
+paste0("simdata_sim", 1)
