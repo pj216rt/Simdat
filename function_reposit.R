@@ -649,3 +649,10 @@ stan_data_loop1 <- function(training_datasets, testing_datasets){
   print(stan_dat[[1]])
   return(stan_dat)
 }
+
+
+#Simulation study function
+simulate.bunches <- function(){
+  ###select condition
+  
+}
