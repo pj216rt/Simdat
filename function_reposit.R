@@ -652,7 +652,10 @@ stan_data_loop1 <- function(training_datasets, testing_datasets){
 
 
 #Simulation study function
-simulate.bunches <- function(){
+simulate.bunches <- function(pos, cond){
   ###select condition
+  prior <- cond$prior[pos]
+  condition <- cond$condition[pos]
   
+  #load generated data
 }

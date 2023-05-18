@@ -68,7 +68,4 @@ split.sim2 <- tt_split(datasets = sim2, percent_train = 0.80)
 #Save this condition
 save(split.sim2, file = "simdata_sim2.RData")
 
-#Condition 3, 15 coefficients of 3, 15 of 0
-rep(c(int = 2.0, slope=0.0),7)
-test <- rep(c(0.2,0.4),8)
-length(rep)
+#Condition 3, 15 coefficients of 3, 15 of 0, need to find how to duplicate values

@@ -14,3 +14,11 @@ priors <- c("uninform", "ridge", "lasso", "horseshoe", "studentt")
 cond <- 1:num_con
 
 conditions <- expand.grid(prior = priors, condition=cond)
+
+#Run simulation
+nworkers <- detectCores() # number of cores to use
+cl <- makePSOCKcluster(nworkers) # create cluster
+clusterCall(cl, function() library(rstan))
+clusterCall(cl, function() library(bayesplot))
+out <- clusterApplyLB(cl, 1:nrow(conditions), simulate.bunches, cond=conditions) # run simulation
+stopCluster(cl) #shut down the nodes
