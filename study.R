@@ -5,7 +5,7 @@ library(parallel) # to run parallel
 rstan_options(auto_write = TRUE) # to avoid recompiling stan model
 set.seed(1234)
 
-num_con <- 6
+num_con <- 2
 
 #Running stan codes for this condition
 #list of priors
@@ -22,7 +22,3 @@ clusterCall(cl, function() library(rstan))
 clusterCall(cl, function() library(bayesplot))
 out <- clusterApplyLB(cl, 1:nrow(conditions), simulate.bunches, cond=conditions) # run simulation
 stopCluster(cl) #shut down the nodes
-
-
-list.files()[grep("simdata_sim1", list.files())]
-paste0("simdata_sim", 1)

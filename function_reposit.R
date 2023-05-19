@@ -653,10 +653,18 @@ stan_data_loop1 <- function(training_datasets, testing_datasets){
 
 #Simulation study function
 simulate.bunches <- function(pos, cond){
+  
+  mypath <- file.path("G:/Simulations/")
+  
   ###select condition
   prior <- cond$prior[pos]
   condition <- cond$condition[pos]
   
-  #load generated data
-  temp <- paste0("simdata_sim", condition)
+  #Search directory for simulation data corresponding to the condition
+  temp <- paste0("simdata_sim", condition, ".RData")
+  print(temp)
+  load(list.files()[grep(temp, list.files())])
+  
+  #Compile data
 }
+
