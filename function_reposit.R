@@ -664,9 +664,14 @@ simulate.bunches <- function(pos, cond){
   temp <- paste0("simdata_sim", condition, ".RData")
   print(temp)
   load(list.files()[grep(temp, list.files())])
+  stan_dat <- 
   
   #Compile data
   temp1 <- paste0("pred_error_", prior, ".stan")
   modFB <- stan_model(temp1)
+  
+  #Run STAN model
+  temp2 <- paste0("stan_data_", condition)
+
 }
 
