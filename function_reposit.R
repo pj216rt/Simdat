@@ -666,5 +666,7 @@ simulate.bunches <- function(pos, cond){
   load(list.files()[grep(temp, list.files())])
   
   #Compile data
+  temp1 <- paste0("pred_error_", prior, ".stan")
+  modFB <- stan_model(temp1)
 }
 

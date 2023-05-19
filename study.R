@@ -9,7 +9,7 @@ num_con <- 2
 
 #Running stan codes for this condition
 #list of priors
-priors <- c("uninform", "ridge", "lasso", "horseshoe", "studentt")
+priors <- c("uninform")
 
 cond <- 1:num_con
 
