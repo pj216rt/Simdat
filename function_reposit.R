@@ -540,13 +540,10 @@ stan_data_loop <- function(training_datasets, testing_datasets){
   level2_vars <- multiple_extract_lev2_var(training_datasets)
   #print(level2_vars[[2]])
   stan_dat <- list()
-  print("Here")
   
   #Creating lists of data to feed into STAN sampler
   for(i in seq_along(training_datasets)){
-    print("Hola")
     holder <- as.data.frame(level2_vars[[i]])
-    print("Dora")
     temp <- list(
       N_obs_train = nrow(training_datasets[[i]]),
       N_pts_train = n_distinct(training_datasets[[i]]$id.new),
@@ -558,7 +555,6 @@ stan_data_loop <- function(training_datasets, testing_datasets){
       N_obs_test = nrow(testing_datasets$Testing[[i]]),
       test_data = model.matrix(~(X1+X2+X3+X4)*time, data = testing_datasets[[i]])
       )
-    print("Boots")
     stan_dat[[i]] <- temp
   }
   #print(stan_dat[[1]])
@@ -666,13 +662,12 @@ simulate.bunches <- function(pos, cond, reps){
   
   #Search directory for simulation data corresponding to the condition
   temp <- paste0("simdata_sim", condition, ".RData") #Searching for RData file from simulation
-  load(list.files()[grep(temp, list.files())]) #loading in the data.  This should have name "split.simX"
+  load(list.files()[grep(temp, list.files())]) #loading in the data.  
   
   #if loops for various conditions
   if(condition==1){ #If we are looking at condition 1, we want to use the split.sim1 data.
     standat <- split.sim1
     #Need to create list of data that the STAN sampler can use
-    standat <- stan_data_loop(training_datasets = standat$Training, testing_datasets = standat$Testing)
   }
   else if(condition==2){
     standat <- split.sim2
@@ -684,7 +679,7 @@ simulate.bunches <- function(pos, cond, reps){
   modFB <- stan_model(temp1)
   
   #Run STAN sampler
-  #fit.stan <- 
-
+  #Can change this the number of iterations and chains
+  fit.stan <- stan_out(stan_data_collection = standat, stan_file = temp1)
 }
 
