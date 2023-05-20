@@ -681,17 +681,6 @@ simulate.bunches <- function(pos, cond){
   #Run STAN sampler
   #Can change this the number of iterations and chains
   fit.stan <- stan_out(stan_data_collection = standat, stan_file = temp1)
-  
-  ###Convergence of STAN model
-  nm <- paste0(prior, condition)
-  pars <- c("gamma")
-  png(file=paste0("trace_", nm, ".png"), width=700, height=700)
-  print(mcmc_trace(as.matrix(fit.stan), regex_pars=pars)) # plot
-  dev.off()
-  # check convergence 
-  out <- summary(fit.stan)$summary
-  rhat <- out[which(out[, "Rhat"] > 1.1), "Rhat"] # PSR > 1.1
-  sp <- get_sampler_params(fit.stan, inc_warmup=F)
-  div <- sapply(sp, function(x) sum(x[, "divergent__"])) # divergent transitions
+
 }
 

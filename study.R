@@ -9,7 +9,7 @@ num_con <- 2
 
 #Running stan codes for this condition
 #list of priors
-priors <- c("uninform")
+priors <- c("uninform", "lasso", "ridge", "horseshoe", "hyperlasso")
 
 cond <- 1:num_con
 
@@ -18,6 +18,7 @@ conditions <- expand.grid(prior = priors, condition=cond)
 #compile stan models
 comp <- stan_model("pred_error_uninform.stan")
 comp1 <- stan_model("pred_error_lasso.stan")
+comp2 <- 
 
 #Run simulation
 nworkers <- detectCores() # number of cores to use
