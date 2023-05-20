@@ -37,6 +37,11 @@ split.sim1 <- stan_data_loop(training_datasets = split.sim1$Training, testing_da
 #Save this condition
 save(split.sim1, file = "simdata_sim1.RData")
 
+
+nrow(split.sim1[[1]])
+
+fit.stan <- stan_out(stan_data_collection = split.sim1)
+
 #Condition 2, level 2 coefficients of 2,2,2,2,2,2,2,2
 #240 subjects
 sim2 <- gen_balanced_datasets(nreps = num_datsets, nSubjs = 240, num_obs = 5, sdErr = 10, 

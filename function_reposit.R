@@ -552,7 +552,7 @@ stan_data_loop <- function(training_datasets, testing_datasets){
       x_train = cbind(1, training_datasets[[i]]$time),
       x2_train = cbind(1, holder),
       y_train = training_datasets[[i]]$Y,
-      N_obs_test = nrow(testing_datasets$Testing[[i]]),
+      N_obs_test = nrow(testing_datasets[[i]]),
       test_data = model.matrix(~(X1+X2+X3+X4)*time, data = testing_datasets[[i]])
       )
     stan_dat[[i]] <- temp
@@ -681,5 +681,8 @@ simulate.bunches <- function(pos, cond, reps){
   #Run STAN sampler
   #Can change this the number of iterations and chains
   fit.stan <- stan_out(stan_data_collection = standat, stan_file = temp1)
+  
+  
+  ###Convergence of STAN model
 }
 
