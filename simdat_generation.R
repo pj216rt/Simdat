@@ -36,6 +36,9 @@ split.sim1 <- tt_split(datasets = sim1, percent_train = 0.80)
 #Save this condition
 save(split.sim1, file = "simdata_sim1.RData")
 
+multiple_extract_lev2_var(datasets = split.sim1$Training)
+stan_data_loop(training_datasets = split.sim1$Training, testing_datasets = split.sim1$Testing)
+
 
 #Condition 2, level 2 coefficients of 2,2,2,2,2,2,2,2
 #240 subjects

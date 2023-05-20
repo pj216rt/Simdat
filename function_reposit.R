@@ -540,10 +540,13 @@ stan_data_loop <- function(training_datasets, testing_datasets){
   level2_vars <- multiple_extract_lev2_var(training_datasets)
   #print(level2_vars[[2]])
   stan_dat <- list()
+  print("Here")
   
   #Creating lists of data to feed into STAN sampler
   for(i in seq_along(training_datasets)){
+    print("Hola")
     holder <- as.data.frame(level2_vars[[i]])
+    print("Dora")
     temp <- list(
       N_obs_train = nrow(training_datasets[[i]]),
       N_pts_train = n_distinct(training_datasets[[i]]$id.new),
@@ -552,9 +555,10 @@ stan_data_loop <- function(training_datasets, testing_datasets){
       x_train = cbind(1, training_datasets[[i]]$time),
       x2_train = cbind(1, holder),
       y_train = training_datasets[[i]]$Y,
-      N_obs_test = nrow(split$Testing[[i]]),
+      N_obs_test = nrow(testing_datasets$Testing[[i]]),
       test_data = model.matrix(~(X1+X2+X3+X4)*time, data = testing_datasets[[i]])
       )
+    print("Boots")
     stan_dat[[i]] <- temp
   }
   #print(stan_dat[[1]])
@@ -668,6 +672,7 @@ simulate.bunches <- function(pos, cond, reps){
   if(condition==1){ #If we are looking at condition 1, we want to use the split.sim1 data.
     standat <- split.sim1
     #Need to create list of data that the STAN sampler can use
+    standat <- stan_data_loop(training_datasets = standat$Training, testing_datasets = standat$Testing)
   }
   else if(condition==2){
     standat <- split.sim2
