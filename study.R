@@ -26,6 +26,6 @@ cl <- makePSOCKcluster(nworkers) # create cluster
 #Aplying the source file for all cores in this paralell setting
 clusterCall(cl, function() { source("function_reposit.R")})
 
-out <- clusterApplyLB(cl, 1:nrow(conditions), simulate.bunches, cond=conditions, reps = 5) # run simulation
+out <- clusterApplyLB(cl, 1:nrow(conditions), simulate.bunches, cond=conditions) # run simulation
 stopCluster(cl) #shut down the nodes
 
