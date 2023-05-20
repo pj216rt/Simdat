@@ -24,5 +24,17 @@ nworkers <- detectCores() # number of cores to use
 cl <- makePSOCKcluster(nworkers) # create cluster
 clusterCall(cl, function() library(rstan))
 clusterCall(cl, function() library(bayesplot))
+
+#Aplying the source file for all cores in this paralell setting
+clusterCall(cl, function() { source("function_reposit.R")})
+
 out <- clusterApplyLB(cl, 1:nrow(conditions), simulate.bunches, cond=conditions, reps = 5) # run simulation
 stopCluster(cl) #shut down the nodes
+
+#This doesn't work
+# clusterEvalQ(cl, {
+#   library(rstan)
+#   library(bayesplot)
+#   source("function_resposit.R")
+# })
+paste0("pred_error_", "lasso", ".stan")
