@@ -33,11 +33,8 @@ for(i in seq_along(sim1)){
 #Split into test and train
 split.sim1 <- tt_split(datasets = sim1, percent_train = 0.80)
 
-#create list that STAN will use
-stan_data1 <- stan_data_loop(training_datasets = split.sim1$Training, testing_datasets = split.sim1$Testing)
-
 #Save this condition
-save(stan_data1, file = "simdata_sim1.RData")
+save(split.sim1, file = "simdata_sim1.RData")
 
 
 #Condition 2, level 2 coefficients of 2,2,2,2,2,2,2,2
