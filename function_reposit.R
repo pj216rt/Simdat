@@ -692,19 +692,26 @@ simulate.bunches <- function(pos, cond, reps){
     
     #checking convergence
     nm <- paste0(prior, condition, counter)
-    pars <- c("gamma")
+    params <- c("gamma")
+    print(pars)
+    print("Dora")
     png(file=paste0("trace_", nm, ".png"), width=700, height=700)
-    print(mcmc_trace(as.matrix(fit.stan), regex_pars=pars)) # plot
+    #regex_pars should be able to be used without using the pars argument
+    #print(mcmc_trace(as.matrix(fit.stan), regex_pars=params)) # plot
+    print(traceplot(fit.stan, pars = "gamma"))
     dev.off()
     
     # check convergence 
     out <- summary(fit.stan)$summary
+    print("here")
     rhat <- out[which(out[, "Rhat"] > 1.1), "Rhat"] # PSR > 1.1
     sp <- get_sampler_params(fit.stan, inc_warmup=F)
     div <- sapply(sp, function(x) sum(x[, "divergent__"])) # divergent transitions
     
     ### Extract output ###
-    pars <- fit.stan@model_pars
+    values <- extract(fit.stan)
+    pars <- names(values)
+    print(pars)
     ## posterior estimates regression coefficients and hyperparameters ##
     pars.sel <- pars[-grep("y_new", pars)] # remove linear predictor from output
     fit.summary <- summary(fit.stan, pars=pars.sel, probs=seq(0, 1, 0.05))$summary # extract summary

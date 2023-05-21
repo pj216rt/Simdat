@@ -29,3 +29,5 @@ clusterCall(cl, function() { source("function_reposit.R")})
 out <- clusterApplyLB(cl, 1:nrow(conditions), simulate.bunches, cond=conditions, reps = num_datsets) # run simulation
 stopCluster(cl) #shut down the nodes
 
+#Testing function on just one condition for now
+simulate.bunches(pos = 1, cond = conditions, reps = 1)

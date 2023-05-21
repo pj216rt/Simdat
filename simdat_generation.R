@@ -3,7 +3,7 @@ source("function_reposit.R")
 library(parallel) # to run parallel
 
 
-num_datsets <- 5
+num_datsets <- 2
 
 #Condition 1, level 2 coefficients of 4,2,0,0,3,0,0,0
 #Generating data
@@ -36,11 +36,7 @@ split.sim1 <- stan_data_loop(training_datasets = split.sim1$Training, testing_da
 
 #Save this condition
 save(split.sim1, file = "simdata_sim1.RData")
-
-
-nrow(split.sim1[[1]])
-
-fit.stan <- stan_out(stan_data_collection = split.sim1)
+split.sim1[1:2]
 
 #Condition 2, level 2 coefficients of 2,2,2,2,2,2,2,2
 #240 subjects
