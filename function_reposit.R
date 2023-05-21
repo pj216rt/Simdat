@@ -652,7 +652,7 @@ stan_data_loop1 <- function(training_datasets, testing_datasets){
 
 
 #Simulation study function
-simulate.bunches <- function(pos, cond){
+simulate.bunches <- function(pos, cond, reps){
   
   mypath <- file.path("G:/Simulations/")
   
@@ -667,10 +667,11 @@ simulate.bunches <- function(pos, cond){
   #if loops for various conditions
   if(condition==1){ #If we are looking at condition 1, we want to use the split.sim1 data.
     standat <- split.sim1
-    #Need to create list of data that the STAN sampler can use
+    simdata <- standat[1:reps]
   }
   else if(condition==2){
     standat <- split.sim2
+    simdata <- standat[1:reps]
   }
   #Add more conditions as they are added
   
@@ -680,7 +681,27 @@ simulate.bunches <- function(pos, cond){
   
   #Run STAN sampler
   #Can change this the number of iterations and chains
-  fit.stan <- stan_out(stan_data_collection = standat, stan_file = temp1)
+  out <- lapply(simdata, function(x){
+    counter <<- counter + 1
+    print(paste("replication", counter))
+    
+    #Running the STAN Sampler
+    fit.stan <- stan_out(stan_data_collection = standat, stan_file = temp1)
+    
+    #checking convergence
+    nm <- paste0(prior, condition, counter)
+    pars <- c("gamma")
+    png(file=paste0("trace_", nm, ".png"), width=700, height=700)
+    print(mcmc_trace(as.matrix(fit.stan), regex_pars=pars)) # plot
+    dev.off()
+    
+    # check convergence 
+    out <- summary(fit.stan)$summary
+    rhat <- out[which(out[, "Rhat"] > 1.1), "Rhat"] # PSR > 1.1
+    sp <- get_sampler_params(fit.stan, inc_warmup=F)
+    div <- sapply(sp, function(x) sum(x[, "divergent__"])) # divergent transitions
+  })
+
 
 }
 
