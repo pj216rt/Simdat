@@ -690,84 +690,107 @@ simulate.bunches <- function(pos, cond, reps){
     #Running the STAN Sampler
     fit.stan <- stan_out(stan_data_collection = standat, stan_file = temp1)
     
-    #checking convergence
-    nm <- paste0(prior, condition, counter)
-    params <- c("gamma")
-    print(pars)
-    print("Dora")
-    png(file=paste0("trace_", nm, ".png"), width=700, height=700)
-    #regex_pars should be able to be used without using the pars argument
-    #print(mcmc_trace(as.matrix(fit.stan), regex_pars=params)) # plot
-    print(traceplot(fit.stan, pars = "gamma"))
-    dev.off()
-    
-    # check convergence 
-    out <- summary(fit.stan)$summary
-    print("here")
-    rhat <- out[which(out[, "Rhat"] > 1.1), "Rhat"] # PSR > 1.1
-    sp <- get_sampler_params(fit.stan, inc_warmup=F)
-    div <- sapply(sp, function(x) sum(x[, "divergent__"])) # divergent transitions
-    
-    ### Extract output ###
-    values <- extract(fit.stan)
-    pars <- names(values)
-    print(pars)
-    ## posterior estimates regression coefficients and hyperparameters ##
-    pars.sel <- pars[-grep("y_new", pars)] # remove linear predictor from output
-    fit.summary <- summary(fit.stan, pars=pars.sel, probs=seq(0, 1, 0.05))$summary # extract summary
-    post.mean <- fit.summary[-grep("y_new", rownames(fit.summary)), "mean"]
-    post.median <- fit.summary[-grep("y_new", rownames(fit.summary)), "50%"]
-    post.draws <- rstan::extract(fit.stan, pars=pars.sel[-grep("y_new", pars.sel)]) # extract posterior
-    #draws from the second half of each chain (excluding burn-in)
-    
-    # estimate posterior modes based on the posterior density
-    estimate_mode <- function(draws){
-      d <- density(draws)
-      d$x[which.max(d$y)]
+    for(i in fit.stan){
+      # check convergence 
+      out <- summary(i)$summary
+      print("here")
+      #print(out)
+      rhat <- out[which(out[, "Rhat"] > 1.1), "Rhat"] # PSR > 1.1
+      sp <- get_sampler_params(i, inc_warmup=F)
+      div <- sapply(sp, function(x) sum(x[, "divergent__"])) # divergent transitions
+      
+      ### Extract output ###
+      values <- rstan::extract(i) #workspace error requring rstan::?
+      pars <- names(values)
+      print(pars)
+      ## posterior estimates regression coefficients and hyperparameters ##
+      pars.sel <- pars[-grep("y_new", pars)] # remove linear predictor from output
+      fit.summary <- summary(i, pars=pars.sel, probs=seq(0, 1, 0.05))$summary # extract summary
+      post.mean <- fit.summary[-grep("y_new", rownames(fit.summary)), "mean"]
+      print(post.mean)
+      post.median <- fit.summary[-grep("y_new", rownames(fit.summary)), "50%"]
+      post.draws <- rstan::extract(i, pars=pars.sel[-grep("y_new", pars.sel)]) # extract posterior
+      #draws from the second half of each chain (excluding burn-in)
     }
     
-    post.mode <- lapply(post.draws, function(x){
-      if(length(dim(x)) == 1){estimate_mode(x)}
-      else(apply(x, 2, estimate_mode))
-    })
-    
-    ## credible intervals ##
-    ci <- fit.summary[-grep("y_new", rownames(fit.summary)), grep("%", colnames(fit.summary))]
-    
-    ## posterior standard deviations ##
-    post.sd <- fit.summary[-grep("y_new", rownames(fit.summary)), "sd"]
-    
-    ## variable selection based on scaled neighborhood criterion ##
-    sd.inter <- cbind(-post.sd[grep("gamma", names(post.sd))], post.sd[grep("gamma", names(post.sd))])
-    draws.gamma <- post.draws[[grep("gamma", names(post.draws))]]
-    post.prob <- rep(NA, nrow(sd.inter))
-    for(i in 1:nrow(sd.inter)){ # compute the posterior probability in [-post.sd, post.sd]
-      post.prob[i] <- sum(sd.inter[i, 1] <= draws.gamma[,i] & sd.inter[i, 2] >= draws.gamma[,i])/nrow(draws.gamma)
-    }
-    # matrix with TRUE if predictor is not zero and thus included
-    excl.pred.snc <- matrix(NA, nrow=11, ncol=length(post.prob))
-    
-    colnames(excl.pred.snc) <- rownames(sd.inter)
-    rownames(excl.pred.snc) <- c("prob0", "prob0.1", "prob0.2", "prob0.3", "prob0.4", 
-                                 "prob0.5", "prob0.6", "prob0.7", "prob0.8", "prob0.9", "prob1")
-    for(i in 1:length(post.prob)){
-      sq <- seq(0, 1, 0.1)
-      excl.pred.snc[, i] <- sapply(sq, function(x) post.prob[i] <= x) 
-    }
-    
-    ## generated y values test set ##
-    ygen <- fit.summary[grep("y_new", rownames(fit.summary)), "mean"]
-    
-    ### Return output ###
-    out <- list("Replication"=paste0("rep", counter), "Rhat > 1.1"=rhat, 
-                "Number of divergent transitions"=div, "Posterior means"=post.mean, 
-                "Posterior medians"=post.median, "Posterior modes"=post.mode, 
-                "Credible intervals"=ci,"Posterior standard deviations"=post.sd, 
-                "Excluded predictors based on scaled neighborhood criterion"=excl.pred.snc, 
-                "Generated y-values test data"=ygen)
-    return(out)
+    # #save traceplot
+    # nm <- paste0(prior, condition, counter)
+    # params <- c("gamma")
+    # print(pars)
+    # print("Dora")
+    # png(file=paste0("trace_", nm, ".png"), width=700, height=700)
+    # #regex_pars should be able to be used without using the pars argument
+    # #print(mcmc_trace(as.matrix(fit.stan), regex_pars=params)) # plot
+    # print(traceplot(fit.stan, pars = "gamma"))
+    # dev.off()
+    # 
+    # # check convergence 
+    # out <- summary(fit.stan)$summary
+    # print("here")
+    # rhat <- out[which(out[, "Rhat"] > 1.1), "Rhat"] # PSR > 1.1
+    # sp <- get_sampler_params(fit.stan, inc_warmup=F)
+    # div <- sapply(sp, function(x) sum(x[, "divergent__"])) # divergent transitions
+    # 
+    # ### Extract output ###
+    # values <- extract(fit.stan)
+    # pars <- names(values)
+    # print(pars)
+    # ## posterior estimates regression coefficients and hyperparameters ##
+    # pars.sel <- pars[-grep("y_new", pars)] # remove linear predictor from output
+    # fit.summary <- summary(fit.stan, pars=pars.sel, probs=seq(0, 1, 0.05))$summary # extract summary
+    # post.mean <- fit.summary[-grep("y_new", rownames(fit.summary)), "mean"]
+    # post.median <- fit.summary[-grep("y_new", rownames(fit.summary)), "50%"]
+    # post.draws <- rstan::extract(fit.stan, pars=pars.sel[-grep("y_new", pars.sel)]) # extract posterior
+    # #draws from the second half of each chain (excluding burn-in)
+    # 
+    # # estimate posterior modes based on the posterior density
+    # estimate_mode <- function(draws){
+    #   d <- density(draws)
+    #   d$x[which.max(d$y)]
+    # }
+    # 
+    # post.mode <- lapply(post.draws, function(x){
+    #   if(length(dim(x)) == 1){estimate_mode(x)}
+    #   else(apply(x, 2, estimate_mode))
+    # })
+    # 
+    # ## credible intervals ##
+    # ci <- fit.summary[-grep("y_new", rownames(fit.summary)), grep("%", colnames(fit.summary))]
+    # 
+    # ## posterior standard deviations ##
+    # post.sd <- fit.summary[-grep("y_new", rownames(fit.summary)), "sd"]
+    # 
+    # ## variable selection based on scaled neighborhood criterion ##
+    # sd.inter <- cbind(-post.sd[grep("gamma", names(post.sd))], post.sd[grep("gamma", names(post.sd))])
+    # draws.gamma <- post.draws[[grep("gamma", names(post.draws))]]
+    # post.prob <- rep(NA, nrow(sd.inter))
+    # for(i in 1:nrow(sd.inter)){ # compute the posterior probability in [-post.sd, post.sd]
+    #   post.prob[i] <- sum(sd.inter[i, 1] <= draws.gamma[,i] & sd.inter[i, 2] >= draws.gamma[,i])/nrow(draws.gamma)
+    # }
+    # # matrix with TRUE if predictor is not zero and thus included
+    # excl.pred.snc <- matrix(NA, nrow=11, ncol=length(post.prob))
+    # 
+    # colnames(excl.pred.snc) <- rownames(sd.inter)
+    # rownames(excl.pred.snc) <- c("prob0", "prob0.1", "prob0.2", "prob0.3", "prob0.4", 
+    #                              "prob0.5", "prob0.6", "prob0.7", "prob0.8", "prob0.9", "prob1")
+    # for(i in 1:length(post.prob)){
+    #   sq <- seq(0, 1, 0.1)
+    #   excl.pred.snc[, i] <- sapply(sq, function(x) post.prob[i] <= x) 
+    # }
+    # 
+    # ## generated y values test set ##
+    # ygen <- fit.summary[grep("y_new", rownames(fit.summary)), "mean"]
+    # 
+    # ### Return output ###
+    # out <- list("Replication"=paste0("rep", counter), "Rhat > 1.1"=rhat, 
+    #             "Number of divergent transitions"=div, "Posterior means"=post.mean, 
+    #             "Posterior medians"=post.median, "Posterior modes"=post.mode, 
+    #             "Credible intervals"=ci,"Posterior standard deviations"=post.sd, 
+    #             "Excluded predictors based on scaled neighborhood criterion"=excl.pred.snc, 
+    #             "Generated y-values test data"=ygen)
+    # return(out)
   }) # end of function to run model and extract output for each rep
   ### Save output ###
-  save(out, file=paste0("convergence_output_", prior, "_sim", condition, ".RData"))
+  #save(out, file=paste0("convergence_output_", prior, "_sim", condition, ".RData"))
 }
 
