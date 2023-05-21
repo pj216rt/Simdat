@@ -705,12 +705,34 @@ simulate.bunches <- function(pos, cond, reps){
       print(pars)
       ## posterior estimates regression coefficients and hyperparameters ##
       pars.sel <- pars[-grep("y_new", pars)] # remove linear predictor from output
+      print(pars.sel)
       fit.summary <- summary(i, pars=pars.sel, probs=seq(0, 1, 0.05))$summary # extract summary
-      post.mean <- fit.summary[-grep("y_new", rownames(fit.summary)), "mean"]
+      print(fit.summary)
+      post.mean <- fit.summary[, "mean"] #Get the mean of everything
       print(post.mean)
-      post.median <- fit.summary[-grep("y_new", rownames(fit.summary)), "50%"]
-      post.draws <- rstan::extract(i, pars=pars.sel[-grep("y_new", pars.sel)]) # extract posterior
+      post.median <- fit.summary[, "50%"]
+      post.draws <- rstan::extract(i, pars=pars.sel) # extract posterior
       #draws from the second half of each chain (excluding burn-in)
+      #Remove the grep segment from the line above bc we already remove "y_new" earlier
+      
+      # estimate posterior modes based on the posterior density
+      estimate_mode <- function(draws){
+        d <- density(draws)
+        d$x[which.max(d$y)]
+      }
+      
+      post.mode <- lapply(post.draws, function(x){
+        if(length(dim(x)) == 1){estimate_mode(x)}
+        else(apply(x, 2, estimate_mode))
+        })
+      
+      ## credible intervals ##
+      ci <- fit.summary[-grep("y_new", rownames(fit.summary)), grep("%", colnames(fit.summary))]
+      
+      ## posterior standard deviations ##
+      post.sd <- fit.summary[-grep("y_new", rownames(fit.summary)), "sd"]
+      
+      ## variable selection based on scaled neighborhood criterion ##
     }
     
     # #save traceplot
@@ -723,13 +745,6 @@ simulate.bunches <- function(pos, cond, reps){
     # #print(mcmc_trace(as.matrix(fit.stan), regex_pars=params)) # plot
     # print(traceplot(fit.stan, pars = "gamma"))
     # dev.off()
-    # 
-    # # check convergence 
-    # out <- summary(fit.stan)$summary
-    # print("here")
-    # rhat <- out[which(out[, "Rhat"] > 1.1), "Rhat"] # PSR > 1.1
-    # sp <- get_sampler_params(fit.stan, inc_warmup=F)
-    # div <- sapply(sp, function(x) sum(x[, "divergent__"])) # divergent transitions
     # 
     # ### Extract output ###
     # values <- extract(fit.stan)
