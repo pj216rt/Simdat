@@ -7,6 +7,7 @@ require(reshape2)
 require(rstan)
 require(dplyr)
 require(tidyverse)
+library(bayesplot) # to save traceplots
 
 genData <- function(nSubjs = 100, sdErr = 1, 
                     # intercept and slope fixed effects
@@ -681,6 +682,7 @@ simulate.bunches <- function(pos, cond, reps){
   
   #Run STAN sampler
   #Can change this the number of iterations and chains
+  counter <- 0 # initialize counter to keep track
   out <- lapply(simdata, function(x){
     counter <<- counter + 1
     print(paste("replication", counter))
@@ -758,5 +760,7 @@ simulate.bunches <- function(pos, cond, reps){
                 "Generated y-values test data"=ygen)
     return(out)
   }) # end of function to run model and extract output for each rep
+  ### Save output ###
+  save(out, file=paste0("convergence_output_", prior, "_sim", condition, ".RData"))
 }
 
