@@ -705,11 +705,11 @@ simulate.bunches <- function(pos, cond, reps){
       print(pars)
       ## posterior estimates regression coefficients and hyperparameters ##
       pars.sel <- pars[-grep("y_new", pars)] # remove linear predictor from output
-      print(pars.sel)
+      #print(pars.sel)
       fit.summary <- summary(i, pars=pars.sel, probs=seq(0, 1, 0.05))$summary # extract summary
-      print(fit.summary)
+      #print(fit.summary)
       post.mean <- fit.summary[, "mean"] #Get the mean of everything
-      print(post.mean)
+      #print(post.mean)
       post.median <- fit.summary[, "50%"]
       post.draws <- rstan::extract(i, pars=pars.sel) # extract posterior
       #draws from the second half of each chain (excluding burn-in)
@@ -726,13 +726,25 @@ simulate.bunches <- function(pos, cond, reps){
         else(apply(x, 2, estimate_mode))
         })
       
+      #error here.  not returning all that it should be returning
       ## credible intervals ##
       ci <- fit.summary[-grep("y_new", rownames(fit.summary)), grep("%", colnames(fit.summary))]
+      print(ci)
       
       ## posterior standard deviations ##
       post.sd <- fit.summary[-grep("y_new", rownames(fit.summary)), "sd"]
+      print(post.sd)
       
       ## variable selection based on scaled neighborhood criterion ##
+      sd.inter <- cbind(-post.sd[grep("gamma", names(post.sd))], post.sd[grep("gamma", names(post.sd))])
+      print(sd.inter)
+      draws.gamma <- post.draws[[grep("gamma", names(post.draws))]]
+      post.prob <- rep(NA, nrow(sd.inter))
+      for(i in 1:nrow(sd.inter)){ # compute the posterior probability in [-post.sd, post.sd]
+        post.prob[i] <- sum(sd.inter[i, 1] <= draws.gamma[,i] & sd.inter[i, 2] >= draws.gamma[,i])/nrow(draws.gamma)
+      }
+      # matrix with TRUE if predictor is not zero and thus included
+      excl.pred.snc <- matrix(NA, nrow=11, ncol=length(post.prob))
     }
     
     # #save traceplot
