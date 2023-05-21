@@ -700,8 +700,30 @@ simulate.bunches <- function(pos, cond, reps){
     rhat <- out[which(out[, "Rhat"] > 1.1), "Rhat"] # PSR > 1.1
     sp <- get_sampler_params(fit.stan, inc_warmup=F)
     div <- sapply(sp, function(x) sum(x[, "divergent__"])) # divergent transitions
+    
+    ### Extract output ###
+    pars <- fit.stan@model_pars
+    ## posterior estimates regression coefficients and hyperparameters ##
+    pars.sel <- pars[-grep("y_new", pars)] # remove linear predictor from output
+    fit.summary <- summary(fit.stan, pars=pars.sel, probs=seq(0, 1, 0.05))$summary # extract summary
+    post.mean <- fit.summary[-grep("y_new", rownames(fit.summary)), "mean"]
+    post.median <- fit.summary[-grep("y_new", rownames(fit.summary)), "50%"]
+    post.draws <- rstan::extract(fit.stan, pars=pars.sel[-grep("y_test", pars.sel)]) # extract posterior
+    #draws from the second half of each chain (excluding burn-in)
+    
+    # estimate posterior modes based on the posterior density
+    estimate_mode <- function(draws){
+      d <- density(draws)
+      d$x[which.max(d$y)]
+    }
+    
+    post.mode <- lapply(post.draws, function(x){
+      if(length(dim(x)) == 1){estimate_mode(x)}
+      else(apply(x, 2, estimate_mode))
+    })
+    
+    ## credible intervals ##
+    ci <- fit.summary[-grep("y_test", rownames(fit.summary)), grep("%", colnames(fit.summary))]
   })
-
-
 }
 
