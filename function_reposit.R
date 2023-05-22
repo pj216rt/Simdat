@@ -665,17 +665,21 @@ my_simulation_func <- function(pos, cond){
   #if loops for various conditions
   if(condition==1){ #If we are looking at condition 1, we want to use the split.sim1 data.
     standat <- split.sim1
-    simdata <- standat[1:reps]
   }
   else if(condition==2){
     standat <- split.sim2
-    simdata <- standat[1:reps]
   }
   #Add more conditions as they are added
   
   #Compile data
   temp1 <- paste0("pred_error_", prior, ".stan")
   modFB <- stan_model(temp1)
+  
+  #Running the STAN Sampler
+  fit.stan <- stan_out(stan_data_collection = standat, stan_file = temp1)
+  #Use the function provided
+  list_of_draws <- stan_output_extract(fit.stan, pars_to_consider = c("gamma"),
+                                       probabilities = seq(0, 1, 0.05))
 }
 
 

@@ -32,3 +32,5 @@ stopCluster(cl) #shut down the nodes
 
 #Testing function on just one condition for now
 simulate.bunches(pos = 1, cond = conditions, reps = 1)
+
+my_simulation_func(pos=1, cond = conditions)
