@@ -651,6 +651,33 @@ stan_data_loop1 <- function(training_datasets, testing_datasets){
   return(stan_dat)
 }
 
+my_simulation_func <- function(pos, cond){
+  mypath <- file.path("G:/Simulations/")
+  
+  ###select condition
+  prior <- cond$prior[pos]
+  condition <- cond$condition[pos]
+  
+  #Search directory for simulation data corresponding to the condition
+  temp <- paste0("simdata_sim", condition, ".RData") #Searching for RData file from simulation
+  load(list.files()[grep(temp, list.files())]) #loading in the data.  
+  
+  #if loops for various conditions
+  if(condition==1){ #If we are looking at condition 1, we want to use the split.sim1 data.
+    standat <- split.sim1
+    simdata <- standat[1:reps]
+  }
+  else if(condition==2){
+    standat <- split.sim2
+    simdata <- standat[1:reps]
+  }
+  #Add more conditions as they are added
+  
+  #Compile data
+  temp1 <- paste0("pred_error_", prior, ".stan")
+  modFB <- stan_model(temp1)
+}
+
 
 #Simulation study function
 simulate.bunches <- function(pos, cond, reps){

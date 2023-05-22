@@ -18,6 +18,7 @@ conditions <- expand.grid(prior = priors, condition=cond)
 #compile stan models
 comp <- stan_model("pred_error_uninform.stan")
 comp1 <- stan_model("pred_error_lasso.stan")
+elanet <- stan_model("pred_error_elasticnet.stan")
 
 #Run simulation
 nworkers <- detectCores() # number of cores to use
