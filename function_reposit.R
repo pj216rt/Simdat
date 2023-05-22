@@ -589,6 +589,17 @@ stan_output_extract <- function(complete_stan_data, pars_to_consider = c("y_new"
   return(output)
 }
 
+#Get summary of stan samplers
+stan_summ_func <- function(complete_stan_data){
+  output <- list()
+  for(i in seq_along(complete_stan_data)){
+    print("Hello")
+    temp <- summary(complete_stan_data[[i]]$summary)
+    output[[i]] <- temp
+  }
+  return(output)
+}
+
 #Prediction accuracy
 #Do stan sampling for each of the repeated simulated data that we have
 predfunct <- function(stan_data_collection, stan_file = "pred_error_uninform.stan", method = "mean"){
@@ -680,6 +691,7 @@ my_simulation_func <- function(pos, cond){
   #Use the function provided
   list_of_draws <- stan_output_extract(fit.stan, pars_to_consider = c("gamma"),
                                        probabilities = seq(0, 1, 0.05))
+  
 }
 
 
