@@ -244,3 +244,83 @@ gen_balanced_datasets <- function(nreps = 10, nSubjs = 100, num_obs = 5, sdErr =
   }
   return(simdata)
 }
+
+#Split data into test and train
+tt_split <- function(datasets, var_to_select = id ,percent_train = 0.80){
+  train_dat <- list()
+  test_dat <- list()
+  for(i in seq_along(datasets)){
+    data <- datasets[[i]]
+    
+    #Essentially create a new column that specifies what group each participant is in
+    groups <- data %>% select(id) %>% distinct(id) %>% rowwise() %>%
+      mutate(group = sample(
+        c("train", "test"), 1,
+        replace = TRUE,
+        prob = c(percent_train, (1-percent_train)) #weights for each group
+      ))
+    
+    #left joined groups to the data
+    data <- data %>% left_join(groups)
+    
+    #Split data into test and train
+    #Train data
+    train_dat[[i]] <- filter(data, group == "train")
+    train_dat[[i]]$id.new <- match(train_dat[[i]]$id, unique(train_dat[[i]]$id))
+    
+    #Test data
+    test_dat[[i]] <- filter(data, group == "test")
+    test_dat[[i]]$id.new <- match(test_dat[[i]]$id, unique(test_dat[[i]]$id))
+  }
+  out <- list(Training = train_dat, Testing = test_dat)
+  return(out)
+}
+
+extract_lev2 <- function(dat, id, filter_num, 
+                         cols_to_drop = c("time", "subject", "group")){
+  f <- dat %>% group_by(id) %>% filter(row_number()==filter_num)
+  df <- f[, ! names(f) %in% cols_to_drop, drop = F]
+  return(df)
+}
+
+#Extract level 2 variables across multiple datasets
+multiple_extract_lev2_var <- function(datasets, 
+                                      cols_drop = c("id", "time", "Y", 
+                                                    "group", "id.new")){
+  output <- list()
+  for(i in seq_along(datasets)){
+    #print("hello")
+    lev2_vars <- extract_lev2(datasets[[i]], id, 1, cols_to_drop=cols_drop)
+    output[[i]] <- lev2_vars
+  }
+  return(output)
+}
+
+#Need to tweak this
+stan_data_loop <- function(training_datasets, testing_datasets){
+  level2_vars <- multiple_extract_lev2_var(training_datasets)
+  names_of_lev2_vars <- colnames(level2_vars[[1]])
+  test_dat_lev2_vars <- paste0(names_of_lev2_vars, collapse = "+") #get level 2 variables and combine them into a formula for later
+  print(test_dat_lev2_vars)
+  test_dat_lev2_vars <- eval(test_dat_lev2_vars)
+  stan_dat <- list()
+  
+  #Creating lists of data to feed into STAN sampler
+  for(i in seq_along(training_datasets)){
+    holder <- as.data.frame(level2_vars[[i]])
+    temp <- list(
+      N_obs_train = nrow(training_datasets[[i]]),
+      N_pts_train = n_distinct(training_datasets[[i]]$id.new),
+      L = 2, K = ncol(level2_vars[[i]])+1,
+      pid_train = training_datasets[[i]]$id.new,
+      x_train = cbind(1, training_datasets[[i]]$time),
+      x2_train = cbind(1, holder),
+      y_train = training_datasets[[i]]$Y,
+      N_obs_test = nrow(testing_datasets[[i]]),
+      test_data = model.matrix(~(test_dat_lev2_vars)*time, data = testing_datasets[[i]])
+    )
+    stan_dat[[i]] <- temp
+  }
+  #print(stan_dat[[1]])
+  return(stan_dat)
+}
