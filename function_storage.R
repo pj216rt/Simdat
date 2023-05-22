@@ -301,8 +301,9 @@ stan_data_loop <- function(training_datasets, testing_datasets){
   level2_vars <- multiple_extract_lev2_var(training_datasets)
   names_of_lev2_vars <- colnames(level2_vars[[1]])
   test_dat_lev2_vars <- paste0(names_of_lev2_vars, collapse = "+") #get level 2 variables and combine them into a formula for later
+  test_dat_lev2_vars <- paste0("Y~(",test_dat_lev2_vars, ")", "*time")
+  test_dat_form <- as.formula(paste0(test_dat_lev2_vars))
   print(test_dat_lev2_vars)
-  test_dat_lev2_vars <- eval(test_dat_lev2_vars)
   stan_dat <- list()
   
   #Creating lists of data to feed into STAN sampler
@@ -317,7 +318,7 @@ stan_data_loop <- function(training_datasets, testing_datasets){
       x2_train = cbind(1, holder),
       y_train = training_datasets[[i]]$Y,
       N_obs_test = nrow(testing_datasets[[i]]),
-      test_data = model.matrix(~(test_dat_lev2_vars)*time, data = testing_datasets[[i]])
+      test_data = model.matrix(test_dat_form, data = testing_datasets[[i]])
     )
     stan_dat[[i]] <- temp
   }

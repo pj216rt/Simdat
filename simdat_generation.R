@@ -34,7 +34,6 @@ for(i in seq_along(sim1)){
 split.sim1 <- tt_split(datasets = sim1, percent_train = 0.80)
 split.sim1 <- stan_data_loop(training_datasets = split.sim1$Training, testing_datasets = split.sim1$Testing)
 
-test <- stan_data_loop(training_datasets=split.sim1$Training, testing_datasets = split.sim1$Testing)
 #Save this condition
 save(split.sim1, file = "simdata_sim1.RData")
 split.sim1[1:2]
