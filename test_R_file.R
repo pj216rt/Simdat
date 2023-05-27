@@ -73,6 +73,14 @@ for(i in fit.stan){
   
   ## credible intervals ##
   ci <- fit.summary[-grep("y_new", rownames(fit.summary)), grep("%", colnames(fit.summary))]
+  
+  ## posterior standard deviations ##
+  post.sd <- fit.summary[, "sd"]
+  
+  ## variable selection based on scaled neighborhood criterion ##
+  sd.inter <- cbind(-post.sd[grep("gamma", names(post.sd))], post.sd[grep("gamma", names(post.sd))])
+  draws.gamma <- post.draws[[grep("gamma", names(post.draws))]]
+  post.prob <- rep(NA, nrow(sd.inter))
 }
 
 fit.summary
