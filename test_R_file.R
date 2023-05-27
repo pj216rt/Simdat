@@ -43,7 +43,6 @@ fit.stan <- stan_out(stan_data_collection = split.sim1)
 
 #Get output from this stan output
 for(i in fit.stan){
-  print("hello")
   out <- summary(i)$summary
   rhat <- out[which(out[, "Rhat"] > 1.1), "Rhat"] # PSR > 1.1
   sp <- get_sampler_params(i, inc_warmup=F)
@@ -55,10 +54,25 @@ for(i in fit.stan){
   pars.sel <- pars[-grep("y_new", pars)] # remove linear predictor from output
   
   fit.summary <- summary(i, pars=pars.sel, probs=seq(0, 1, 0.05))$summary # extract summary
-  post.mean <- fit.summary[-grep("y_new", rownames(fit.summary)), "mean"]
-  print(post.mean)
-  post.median <- fit.summary[-grep("y_new", rownames(fit.summary)), "50%"]
-  print(post.median)
+  post.mean <- fit.summary[, "mean"]
+  #print(post.mean)
+  post.median <- fit.summary[, "50%"]
+  #print(post.median)
+  #extract posterior draws from the second half of each chain (excluding burn-in)
+  post.draws <- rstan::extract(i, pars=pars.sel)
+  
+  # estimate posterior modes based on the posterior density
+  estimate_mode <- function(draws){
+    d <- density(draws)
+    d$x[which.max(d$y)]
+  }
+  post.mode <- lapply(post.draws, function(x){
+    if(length(dim(x)) == 1){estimate_mode(x)}
+    else(apply(x, 2, estimate_mode))
+  })
+  
+  ## credible intervals ##
+  ci <- fit.summary[-grep("y_new", rownames(fit.summary)), grep("%", colnames(fit.summary))]
 }
 
 fit.summary
