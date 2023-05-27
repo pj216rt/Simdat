@@ -78,9 +78,20 @@ for(i in fit.stan){
   post.sd <- fit.summary[, "sd"]
   
   ## variable selection based on scaled neighborhood criterion ##
-  sd.inter <- cbind(-post.sd[grep("gamma", names(post.sd))], post.sd[grep("gamma", names(post.sd))])
-  draws.gamma <- post.draws[[grep("gamma", names(post.draws))]]
+  sd.inter <- cbind(-post.sd[grep("gamma\\b", names(post.sd))], post.sd[grep("gamma\\b", names(post.sd))])
+  draws.gamma <- post.draws[[grep("gamma\\b", names(post.draws))]]
+  dim(draws.gamma) <- c(1000,10)
+  #print(draws.gamma[,,2])
   post.prob <- rep(NA, nrow(sd.inter))
+  for(i in 1:nrow(sd.inter)){ # compute the posterior probability in [-post.sd, post.sd]
+    post.prob[i] <- sum(sd.inter[i, 1] <= draws.gamma[,i] & sd.inter[i, 2] >= draws.gamma[,i])/nrow(draws.gamma)
+  }
+  excl.pred.snc <- matrix(NA, nrow=11, ncol=length(post.prob)) # matrix with TRUE if predictor is not zero
+  colnames(excl.pred.snc) <- rownames(sd.inter)
+  rownames(excl.pred.snc) <- c("prob0", "prob0.1", "prob0.2", "prob0.3", "prob0.4", 
+                               "prob0.5", "prob0.6", "prob0.7", "prob0.8", "prob0.9", "prob1")
+  for(i in 1:length(post.prob)){
+    sq <- seq(0, 1, 0.1)
+    excl.pred.snc[, i] <- sapply(sq, function(x) post.prob[i] <= x) 
+  }
 }
-
-fit.summary
