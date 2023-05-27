@@ -1,4 +1,5 @@
 source("function_storage.R")
+source("function_reposit.R")
 library(parallel) # to run parallel
 rstan_options(auto_write = TRUE) # to avoid recompiling stan model
 set.seed(1234)
@@ -27,3 +28,14 @@ for(i in seq_along(dat)){
   dat[[i]] <- dat[[i]] %>% mutate_at(c("X3", "X4"), ~(scale(.) %>% as.vector))
 }
 
+#Split into test and train
+split.sim1 <- tt_split(datasets = dat, percent_train = 0.80)
+split.sim1 <- stan_data_loop(training_datasets = split.sim1$Training, testing_datasets = split.sim1$Testing)
+
+
+
+#compile stan models
+comp <- stan_model("pred_error_uninform.stan")
+
+#Running the STAN Sampler
+fit.stan <- stan_out(stan_data_collection = split.sim1)
