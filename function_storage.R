@@ -332,6 +332,7 @@ multiple_extract_lev2_var <- function(datasets,
 #Need to tweak this
 stan_data_loop <- function(training_datasets, testing_datasets){
   level2_vars <- multiple_extract_lev2_var(training_datasets)
+  #Creating formula to plug into the test data model matrix later
   names_of_lev2_vars <- colnames(level2_vars[[1]])
   test_dat_lev2_vars <- paste0(names_of_lev2_vars, collapse = "+") #get level 2 variables and combine them into a formula for later
   test_dat_lev2_vars <- paste0("Y~(",test_dat_lev2_vars, ")", "*time")

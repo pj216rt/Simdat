@@ -4,7 +4,7 @@ library(parallel) # to run parallel
 rstan_options(auto_write = TRUE) # to avoid recompiling stan model
 set.seed(1234)
 
-num_datsets <- 5
+num_datsets <- 2
 sample_size <- c(50,100,500)
 dat <- gen_balanced_datasets_long(nreps = num_datsets, nSubjs = sample_size, num_obs = 5, sdErr = 10, 
                              # intercept and slope fixed effects
@@ -24,6 +24,7 @@ dat <- gen_balanced_datasets_long(nreps = num_datsets, nSubjs = sample_size, num
                              coef2Continuous = list(c(int2 = 0.0, slope2 = 0.0),
                                                     c(int2 = 0.0, slope2 = 0.0)))
 #We need to scale the data now
+#only scale continuous data
 for(i in seq_along(dat)){
   dat[[i]] <- dat[[i]] %>% mutate_at(c("X3", "X4"), ~(scale(.) %>% as.vector))
 }
@@ -39,3 +40,25 @@ comp <- stan_model("pred_error_uninform.stan")
 
 #Running the STAN Sampler
 fit.stan <- stan_out(stan_data_collection = split.sim1)
+
+#Get output from this stan output
+for(i in fit.stan){
+  print("hello")
+  out <- summary(i)$summary
+  rhat <- out[which(out[, "Rhat"] > 1.1), "Rhat"] # PSR > 1.1
+  sp <- get_sampler_params(i, inc_warmup=F)
+  div <- sapply(sp, function(x) sum(x[, "divergent__"])) # divergent transitions
+  
+  ### Extract output ###
+  pars <- i@model_pars
+  ## posterior estimates regression coefficients and hyperparameters ##
+  pars.sel <- pars[-grep("y_new", pars)] # remove linear predictor from output
+  
+  fit.summary <- summary(i, pars=pars.sel, probs=seq(0, 1, 0.05))$summary # extract summary
+  post.mean <- fit.summary[-grep("y_new", rownames(fit.summary)), "mean"]
+  print(post.mean)
+  post.median <- fit.summary[-grep("y_new", rownames(fit.summary)), "50%"]
+  print(post.median)
+}
+
+fit.summary
