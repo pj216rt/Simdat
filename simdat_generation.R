@@ -36,7 +36,6 @@ split.sim1 <- stan_data_loop(training_datasets = split.sim1$Training, testing_da
 
 #Save this condition
 save(split.sim1, file = "simdata_sim1.RData")
-split.sim1[1:2]
 
 #Condition 2, level 2 coefficients of 2,2,2,2,2,2,2,2
 #240 subjects

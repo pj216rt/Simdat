@@ -245,6 +245,39 @@ gen_balanced_datasets <- function(nreps = 10, nSubjs = 100, num_obs = 5, sdErr =
   return(simdata)
 }
 
+#Balanced dataset generation, but with an option to pass a list of sample sizes as an argument
+gen_balanced_datasets_long <- function(nreps = 10, nSubjs = list_sampsize, num_obs = 5, sdErr = 10, 
+                                       # intercept and slope fixed effects
+                                       coef1 = c(4, 3),
+                                       # types of level 2 covariates
+                                       level2Binary = c(.2, 0.7),
+                                       level2Continuous = list(c(mu = 0, sd = 1),
+                                                               c(mu = 5, sd = 1)),
+                                       # corr between errors on subject-specific int and slope
+                                       corrRE = 0.20,
+                                       # sd of errors on subject-specific int and slope
+                                       sdRE = c(1, 1),
+                                       # for each predictor in level 2, (int2, slope2) 
+                                       # specify effect on level 2 intercept and level 2 slope
+                                       coef2Binary = list(c(int2 = 2.0, slope2 = 1.0),
+                                                          c(int2 = 1.0, slope2 = 3.0)),
+                                       coef2Continuous = list(c(int2 = 1.0, slope2 = 1.5),
+                                                              c(int2 = 0.2, slope2 = 3.0))){
+  
+  #generate nreps datasets
+  simdata <- list()
+  for(i in seq_along(nSubjs)){
+    temp <- list()
+    for(j in 1:nreps){
+      temp[[j]] <- genData_balanced(nSubjs[[i]], num_obs, sdErr, coef1, level2Binary, 
+                                    level2Continuous, corrRE, sdRE,coef2Binary,coef2Continuous)
+      simdata[[i]] <- temp
+    }
+  }
+  simdata <- unlist(simdata, recursive = FALSE)
+  return(simdata)
+}
+
 #Split data into test and train
 tt_split <- function(datasets, var_to_select = id ,percent_train = 0.80){
   train_dat <- list()
