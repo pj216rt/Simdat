@@ -53,7 +53,7 @@ for(i in fit.stan){
   ## posterior estimates regression coefficients and hyperparameters ##
   pars.sel <- pars[-grep("y_new", pars)] # remove linear predictor from output
   
-  fit.summary <- summary(i, pars=pars.sel, probs=seq(0, 1, 0.05))$summary # extract summary
+  fit.summary <- summary(i, probs=seq(0, 1, 0.05))$summary # extract summary
   post.mean <- fit.summary[, "mean"]
   #print(post.mean)
   post.median <- fit.summary[, "50%"]
@@ -94,4 +94,9 @@ for(i in fit.stan){
     sq <- seq(0, 1, 0.1)
     excl.pred.snc[, i] <- sapply(sq, function(x) post.prob[i] <= x) 
   }
+  
+  ## generated y values test set ##
+  ygen <- fit.summary[grep("y_new", rownames(fit.summary)), "mean"]
+  
+  ### Return output ###
 }
