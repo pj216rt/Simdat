@@ -130,15 +130,29 @@ rmse_vals <- rmse_vals %>% mutate(groups = case_when(index < 11 ~ 1,
 
 #Plotting 
 p <- ggplot(rmse_vals, aes(index, rmse_vals))
-p + geom_point(aes(colour = factor(groups)), size=2)
+p + geom_point(aes(colour = factor(groups)), size=2) + 
+  labs(x = "Simulation Number", y = "Prediction RMSE Values", title = "RMSE Values vs. Simulation Number",
+       colour = "Sample Size")
 
 #Mean of each group
 aggregate(rmse_vals$rmse_vals, list(rmse_vals$groups), FUN=mean)
 
 #summary stats
 library(rstatix)
+library(ggpubr)
 rmse_summary <- rmse_vals %>% group_by(groups) %>% get_summary_stats(rmse_vals, type = "mean_sd")
 rmse_summary
 
+#ANOVA
 res.aov <- rmse_vals %>% anova_test(rmse_vals~groups)
 res.aov
+
+#Pairwise
+pwc <- rmse_vals %>% pairwise_t_test(rmse_vals~groups, p.adjust.method = "bonferroni")
+pwc
+
+pwc <- pwc %>% add_xy_position(x="group")
+ggboxplot(rmse_vals, x = "groups", y = "") + 
+  stat_pvalue_manual(pwc, label = "p.adj", tip.length = 0, step.increase = 0.1) + 
+  labs(subtitle = get_test_label(res.aov, detailed = TRUE),
+       caption = get_pwc_label(pwc))
