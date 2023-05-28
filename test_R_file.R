@@ -43,6 +43,8 @@ fit.stan <- stan_out(stan_data_collection = split.sim1)
 
 #Get output from this stan output
 for(i in fit.stan){
+  t <- typeof(i)
+  
   out <- summary(i)$summary
   rhat <- out[which(out[, "Rhat"] > 1.1), "Rhat"] # PSR > 1.1
   sp <- get_sampler_params(i, inc_warmup=F)
@@ -54,9 +56,9 @@ for(i in fit.stan){
   pars.sel <- pars[-grep("y_new", pars)] # remove linear predictor from output
   
   fit.summary <- summary(i, probs=seq(0, 1, 0.05))$summary # extract summary
-  post.mean <- fit.summary[, "mean"]
+  post.mean <- fit.summary[-grep("y_new", rownames(fit.summary)), "mean"]
   #print(post.mean)
-  post.median <- fit.summary[, "50%"]
+  post.median <- fit.summary[-grep("y_new", rownames(fit.summary)), "50%"]
   #print(post.median)
   #extract posterior draws from the second half of each chain (excluding burn-in)
   post.draws <- rstan::extract(i, pars=pars.sel)
@@ -94,9 +96,16 @@ for(i in fit.stan){
     sq <- seq(0, 1, 0.1)
     excl.pred.snc[, i] <- sapply(sq, function(x) post.prob[i] <= x) 
   }
-  
+
   ## generated y values test set ##
   ygen <- fit.summary[grep("y_new", rownames(fit.summary)), "mean"]
   
   ### Return output ###
+  out <- list("Rhat > 1.1"=rhat, "Number of divergent transitions"=div, "Posterior means"=post.mean, 
+              "Posterior medians"=post.median, "Posterior modes"=post.mode, 
+              "Credible intervals"=ci,"Posterior standard deviations"=post.sd, 
+              "Excluded predictors based on scaled neighborhood criterion"=excl.pred.snc, 
+              "Generated y-values test data"=ygen)
+  
+  return(out)
 }
