@@ -4,7 +4,7 @@ library(parallel) # to run parallel
 rstan_options(auto_write = TRUE) # to avoid recompiling stan model
 set.seed(1234)
 
-num_datsets <- 2
+num_datsets <- 10
 sample_size <- c(50,100,200)
 dat <- gen_balanced_datasets_long(nreps = num_datsets, nSubjs = sample_size, num_obs = 5, sdErr = 10, 
                              # intercept and slope fixed effects
@@ -34,7 +34,6 @@ split.sim1 <- tt_split(datasets = dat, percent_train = 0.80)
 split.sim1 <- stan_data_loop(training_datasets = split.sim1$Training, testing_datasets = split.sim1$Testing)
 
 
-
 #compile stan models
 comp <- stan_model("pred_error_uninform.stan")
 
@@ -43,26 +42,28 @@ fit.stan <- stan_out(stan_data_collection = split.sim1)
 
 #Get output from this stan output
 output <- list()
-for(i in fit.stan){
-  t <- typeof(i)
+output
+for(i in seq_along(fit.stan)){
+  print(i)
+  t <- typeof(fit.stan[[i]])
   
-  out <- summary(i)$summary
+  out <- summary(fit.stan[[i]])$summary
   rhat <- out[which(out[, "Rhat"] > 1.1), "Rhat"] # PSR > 1.1
-  sp <- get_sampler_params(i, inc_warmup=F)
+  sp <- get_sampler_params(fit.stan[[i]], inc_warmup=F)
   div <- sapply(sp, function(x) sum(x[, "divergent__"])) # divergent transitions
   
   ### Extract output ###
-  pars <- i@model_pars
+  pars <- fit.stan[[i]]@model_pars
   ## posterior estimates regression coefficients and hyperparameters ##
   pars.sel <- pars[-grep("y_new", pars)] # remove linear predictor from output
   
-  fit.summary <- summary(i, probs=seq(0, 1, 0.05))$summary # extract summary
+  fit.summary <- summary(fit.stan[[i]], probs=seq(0, 1, 0.05))$summary # extract summary
   post.mean <- fit.summary[-grep("y_new", rownames(fit.summary)), "mean"]
   #print(post.mean)
   post.median <- fit.summary[-grep("y_new", rownames(fit.summary)), "50%"]
   #print(post.median)
   #extract posterior draws from the second half of each chain (excluding burn-in)
-  post.draws <- rstan::extract(i, pars=pars.sel)
+  post.draws <- rstan::extract(fit.stan[[i]], pars=pars.sel)
   
   # estimate posterior modes based on the posterior density
   estimate_mode <- function(draws){
@@ -89,7 +90,7 @@ for(i in fit.stan){
   for(i in 1:nrow(sd.inter)){ # compute the posterior probability in [-post.sd, post.sd]
     post.prob[i] <- sum(sd.inter[i, 1] <= draws.gamma[,i] & sd.inter[i, 2] >= draws.gamma[,i])/nrow(draws.gamma)
   }
-  excl.pred.snc <- matrix(NA, nrow=11, ncol=length(post.prob)) # matrix with TRUE if predictor is not zero
+  excl.pred.snc <- matrix(NA, nrow=11, ncol=length(post.prob)) # matrix with TRUE if predictor is not zero and should be included
   colnames(excl.pred.snc) <- rownames(sd.inter)
   rownames(excl.pred.snc) <- c("prob0", "prob0.1", "prob0.2", "prob0.3", "prob0.4", 
                                "prob0.5", "prob0.6", "prob0.7", "prob0.8", "prob0.9", "prob1")
@@ -107,6 +108,20 @@ for(i in fit.stan){
               "Credible intervals"=ci,"Posterior standard deviations"=post.sd, 
               "Excluded predictors based on scaled neighborhood criterion"=excl.pred.snc, 
               "Generated y-values test data"=ygen)
-  output[[i]] <- out
-  return(out)
+  output[[length(output)+1]] <- out
 }
+
+rmse_vals <- list()
+for(i in seq_along(output)){
+  gendat <- output[[i]]$`Generated y-values test data`
+  actdat <- split.sim1[[i]]$test_data
+  
+  temp <- sqrt(mean((actdat - gendat)^2))
+  rmse_vals[[length(rmse_vals)+1]] <- temp
+  print(temp)
+}
+
+rmse_vals <- unlist(rmse_vals)
+rmse_vals <- data.frame(rmse_vals)
+rmse_vals$index <- 1:nrow(rmse_vals)
+plot(rmse_vals)
