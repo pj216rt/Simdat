@@ -634,7 +634,6 @@ cleaning <- function(RMSEvals){
   temp <- t(data.frame(RMSEvals))
   row.names(temp) <- 1:nrow(temp)
   colnames(temp) <- c("RMSE")
-  plot(temp)
 }
 
 stan_data_loop1 <- function(training_datasets, testing_datasets){

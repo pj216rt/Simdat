@@ -124,4 +124,21 @@ for(i in seq_along(output)){
 rmse_vals <- unlist(rmse_vals)
 rmse_vals <- data.frame(rmse_vals)
 rmse_vals$index <- 1:nrow(rmse_vals)
-plot(rmse_vals)
+rmse_vals <- rmse_vals %>% mutate(groups = case_when(index < 11 ~ 1,
+                                                     index >= 11 & index < 21 ~ 2,
+                                                     index  < 31 ~3))
+
+#Plotting 
+p <- ggplot(rmse_vals, aes(index, rmse_vals))
+p + geom_point(aes(colour = factor(groups)), size=2)
+
+#Mean of each group
+aggregate(rmse_vals$rmse_vals, list(rmse_vals$groups), FUN=mean)
+
+#summary stats
+library(rstatix)
+rmse_summary <- rmse_vals %>% group_by(groups) %>% get_summary_stats(rmse_vals, type = "mean_sd")
+rmse_summary
+
+res.aov <- rmse_vals %>% anova_test(rmse_vals~groups)
+res.aov
