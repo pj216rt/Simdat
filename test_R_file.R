@@ -5,7 +5,7 @@ rstan_options(auto_write = TRUE) # to avoid recompiling stan model
 set.seed(1234)
 
 num_datsets <- 2
-sample_size <- c(50,100,500)
+sample_size <- c(50,100,200)
 dat <- gen_balanced_datasets_long(nreps = num_datsets, nSubjs = sample_size, num_obs = 5, sdErr = 10, 
                              # intercept and slope fixed effects
                              coef1 = c(4, 3),
@@ -42,6 +42,7 @@ comp <- stan_model("pred_error_uninform.stan")
 fit.stan <- stan_out(stan_data_collection = split.sim1)
 
 #Get output from this stan output
+output <- list()
 for(i in fit.stan){
   t <- typeof(i)
   
@@ -106,6 +107,6 @@ for(i in fit.stan){
               "Credible intervals"=ci,"Posterior standard deviations"=post.sd, 
               "Excluded predictors based on scaled neighborhood criterion"=excl.pred.snc, 
               "Generated y-values test data"=ygen)
-  
+  output[[i]] <- out
   return(out)
 }
