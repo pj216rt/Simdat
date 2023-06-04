@@ -254,7 +254,7 @@ gen_balanced_datasets_long <- function(nreps = 10, nSubjs = list_sampsize, num_o
                                        level2Continuous = list(c(mu = 0, sd = 1),
                                                                c(mu = 5, sd = 1)),
                                        # corr between errors on subject-specific int and slope
-                                       corrRE = 0.20,
+                                       corrRE = list_of_corr,
                                        # sd of errors on subject-specific int and slope
                                        sdRE = c(1, 1),
                                        # for each predictor in level 2, (int2, slope2) 
@@ -268,13 +268,19 @@ gen_balanced_datasets_long <- function(nreps = 10, nSubjs = list_sampsize, num_o
   simdata <- list()
   for(i in seq_along(nSubjs)){
     temp <- list()
-    for(j in 1:nreps){
-      temp[[j]] <- genData_balanced(nSubjs[[i]], num_obs, sdErr, coef1, level2Binary, 
-                                    level2Continuous, corrRE, sdRE,coef2Binary,coef2Continuous)
-      simdata[[i]] <- temp
+    for(j in seq_along(corrRE)){
+      temp1 <- list()
+      for(k in 1:nreps){
+        temp1[[k]] <- genData_balanced(nSubjs[[i]], num_obs, sdErr, coef1, level2Binary, 
+                                      level2Continuous, corrRE[[j]], sdRE,coef2Binary,coef2Continuous)
+      }
+      temp[[j]] <- temp1
     }
+    simdata[[i]] <- temp
   }
   simdata <- unlist(simdata, recursive = FALSE)
+  simdata <- unlist(simdata, recursive = FALSE)
+  #Unlist twice
   return(simdata)
 }
 

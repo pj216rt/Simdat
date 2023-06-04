@@ -6,6 +6,7 @@ set.seed(1234)
 
 num_datsets <- 10
 sample_size <- c(50,100,200)
+corr_sizes <- c(0.1, 0.5, 0.9)
 dat <- gen_balanced_datasets_long(nreps = num_datsets, nSubjs = sample_size, num_obs = 5, sdErr = 10, 
                              # intercept and slope fixed effects
                              coef1 = c(4, 3),
@@ -14,7 +15,7 @@ dat <- gen_balanced_datasets_long(nreps = num_datsets, nSubjs = sample_size, num
                              level2Continuous = list(c(mu = 0, sd = 1),
                                                      c(mu = 5, sd = 1)),
                              # corr between errors on subject-specific int and slope
-                             corrRE = 0.50,
+                             corrRE = corr_sizes,
                              # sd of errors on subject-specific int and slope
                              sdRE = c(1, 1),
                              # for each predictor in level 2, (int2, slope2) 
@@ -23,6 +24,7 @@ dat <- gen_balanced_datasets_long(nreps = num_datsets, nSubjs = sample_size, num
                                                 c(int2 = 2.0, slope2 = 0.0)),
                              coef2Continuous = list(c(int2 = 0.0, slope2 = 0.0),
                                                     c(int2 = 0.0, slope2 = 0.0)))
+
 #We need to scale the data now
 #only scale continuous data
 for(i in seq_along(dat)){
@@ -110,6 +112,11 @@ for(i in seq_along(fit.stan)){
               "Generated y-values test data"=ygen)
   output[[length(output)+1]] <- out
 }
+
+#Split this output into its parts
+
+
+
 
 rmse_vals <- list()
 for(i in seq_along(output)){
