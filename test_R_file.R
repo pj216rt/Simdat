@@ -136,42 +136,10 @@ rmse_vals <- rmse_vals %>% mutate(groups = case_when(index < 11 ~ 1,
 #Plotting 
 p <- ggplot(rmse_vals, aes(index, rmse_vals))
 p + geom_point(aes(colour = factor(groups)), size=2) + 
-  labs(x = "Simulation Number", y = "Prediction RMSE Values", title = "RMSE Values vs. Simulation Number",
-       colour = "Sample Size")
+  labs(x = "Simulation Number", y = "Prediction RMSE Values", title = "RMSE Values vs. Correlation of Simulated Data, Sample Size of 50",
+       colour = "Correlation")
 
-#Get results of sample size 100
-results.100 <- output[31:60]
-
-#Get results of sample size 200
-results.200 <- output[61:90]
-  
-
-
-
-rmse_vals <- list()
-for(i in seq_along(output)){
-  gendat <- output[[i]]$`Generated y-values test data`
-  actdat <- split.sim1[[i]]$test_data
-  
-  temp <- sqrt(mean((actdat - gendat)^2))
-  rmse_vals[[length(rmse_vals)+1]] <- temp
-  print(temp)
-}
-
-
-rmse_vals <- rmse_vals %>% mutate(groups = case_when(index < 11 ~ 1,
-                                                     index >= 11 & index < 21 ~ 2,
-                                                     index  < 31 ~3))
-
-#Plotting 
-p <- ggplot(rmse_vals, aes(index, rmse_vals))
-p + geom_point(aes(colour = factor(groups)), size=2) + 
-  labs(x = "Simulation Number", y = "Prediction RMSE Values", title = "RMSE Values vs. Simulation Number",
-       colour = "Sample Size")
-
-#Mean of each group
-aggregate(rmse_vals$rmse_vals, list(rmse_vals$groups), FUN=mean)
-
+#Slight trend?
 #summary stats
 library(rstatix)
 library(ggpubr)
@@ -185,6 +153,97 @@ res.aov
 #Pairwise
 pwc <- rmse_vals %>% pairwise_t_test(rmse_vals~groups, p.adjust.method = "bonferroni")
 pwc
+
+#Get results of sample size 100
+results.100 <- output[31:60]
+
+rmse_vals <- list()
+for(i in seq_along(results.100)){
+  gendat <- results.100[[i]]$`Generated y-values test data`
+  actdat <- split.sim1[[i+30]]$test_data
+  
+  temp <- sqrt(mean((actdat - gendat)^2))
+  rmse_vals[[length(rmse_vals)+1]] <- temp
+  print(temp)
+}
+rmse_vals <- unlist(rmse_vals)
+rmse_vals <- data.frame(rmse_vals)
+rmse_vals$index <- 1:nrow(rmse_vals)
+
+rmse_vals <- rmse_vals %>% mutate(groups = case_when(index < 11 ~ 1,
+                                                     index >= 11 & index < 21 ~ 2,
+                                                     index  < 31 ~3))
+
+#Plotting 
+p <- ggplot(rmse_vals, aes(index, rmse_vals))
+p + geom_point(aes(colour = factor(groups)), size=2) + 
+  labs(x = "Simulation Number", y = "Prediction RMSE Values", title = "RMSE Values vs. Correlation of Simulated Data, Sample Size of 100",
+       colour = "Correlation")
+
+rmse_summary <- rmse_vals %>% group_by(groups) %>% get_summary_stats(rmse_vals, type = "mean_sd")
+rmse_summary
+
+#ANOVA
+res.aov <- rmse_vals %>% anova_test(rmse_vals~groups)
+res.aov
+
+#Pairwise
+pwc <- rmse_vals %>% pairwise_t_test(rmse_vals~groups, p.adjust.method = "bonferroni")
+pwc
+
+#Get results of sample size 200
+results.200 <- output[61:90]
+
+rmse_vals <- list()
+for(i in seq_along(results.200)){
+  gendat <- results.200[[i]]$`Generated y-values test data`
+  actdat <- split.sim1[[i+60]]$test_data
+  
+  temp <- sqrt(mean((actdat - gendat)^2))
+  rmse_vals[[length(rmse_vals)+1]] <- temp
+  print(temp)
+}
+rmse_vals <- unlist(rmse_vals)
+rmse_vals <- data.frame(rmse_vals)
+rmse_vals$index <- 1:nrow(rmse_vals)
+
+rmse_vals <- rmse_vals %>% mutate(groups = case_when(index < 11 ~ 1,
+                                                     index >= 11 & index < 21 ~ 2,
+                                                     index  < 31 ~3))
+
+#Plotting 
+p <- ggplot(rmse_vals, aes(index, rmse_vals))
+p + geom_point(aes(colour = factor(groups)), size=2) + 
+  labs(x = "Simulation Number", y = "Prediction RMSE Values", title = "RMSE Values vs. Correlation of Simulated Data, Sample Size of 200",
+       colour = "Correlation")
+
+rmse_summary <- rmse_vals %>% group_by(groups) %>% get_summary_stats(rmse_vals, type = "mean_sd")
+rmse_summary
+
+#ANOVA
+res.aov <- rmse_vals %>% anova_test(rmse_vals~groups)
+res.aov
+
+#Pairwise
+pwc <- rmse_vals %>% pairwise_t_test(rmse_vals~groups, p.adjust.method = "bonferroni")
+pwc
+  
+
+
+
+
+
+
+#Plotting 
+p <- ggplot(rmse_vals, aes(index, rmse_vals))
+p + geom_point(aes(colour = factor(groups)), size=2) + 
+  labs(x = "Simulation Number", y = "Prediction RMSE Values", title = "RMSE Values vs. Simulation Number",
+       colour = "Sample Size")
+
+#Mean of each group
+aggregate(rmse_vals$rmse_vals, list(rmse_vals$groups), FUN=mean)
+
+
 
 pwc <- pwc %>% add_xy_position(x="group")
 ggboxplot(rmse_vals, x = "groups", y = "") + 
