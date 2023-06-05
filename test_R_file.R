@@ -113,8 +113,38 @@ for(i in seq_along(fit.stan)){
   output[[length(output)+1]] <- out
 }
 
-#Split this output into its parts
+#get results of sample size 50
+results.50 <- output[1:30]
 
+rmse_vals <- list()
+for(i in seq_along(results.50)){
+  gendat <- results.50[[i]]$`Generated y-values test data`
+  actdat <- split.sim1[[i]]$test_data
+  
+  temp <- sqrt(mean((actdat - gendat)^2))
+  rmse_vals[[length(rmse_vals)+1]] <- temp
+  print(temp)
+}
+rmse_vals <- unlist(rmse_vals)
+rmse_vals <- data.frame(rmse_vals)
+rmse_vals$index <- 1:nrow(rmse_vals)
+
+rmse_vals <- rmse_vals %>% mutate(groups = case_when(index < 11 ~ 1,
+                                                     index >= 11 & index < 21 ~ 2,
+                                                     index  < 31 ~3))
+
+#Plotting 
+p <- ggplot(rmse_vals, aes(index, rmse_vals))
+p + geom_point(aes(colour = factor(groups)), size=2) + 
+  labs(x = "Simulation Number", y = "Prediction RMSE Values", title = "RMSE Values vs. Simulation Number",
+       colour = "Sample Size")
+
+#Get results of sample size 100
+results.100 <- output[31:60]
+
+#Get results of sample size 200
+results.200 <- output[61:90]
+  
 
 
 
@@ -128,9 +158,7 @@ for(i in seq_along(output)){
   print(temp)
 }
 
-rmse_vals <- unlist(rmse_vals)
-rmse_vals <- data.frame(rmse_vals)
-rmse_vals$index <- 1:nrow(rmse_vals)
+
 rmse_vals <- rmse_vals %>% mutate(groups = case_when(index < 11 ~ 1,
                                                      index >= 11 & index < 21 ~ 2,
                                                      index  < 31 ~3))
